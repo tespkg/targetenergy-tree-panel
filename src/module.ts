@@ -1,40 +1,46 @@
-import { PanelPlugin } from '@grafana/data';
-import { SimpleOptions } from './types';
-import { SimplePanel } from './components/SimplePanel';
+import { PanelPlugin } from '@grafana/data'
+import { TreePanel } from 'components/TreePanel'
+import { TreeOptions } from 'types'
 
-export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions((builder) => {
+export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((builder) => {
   return builder
-    .addTextInput({
-      path: 'text',
-      name: 'Simple text option',
-      description: 'Description of panel option',
-      defaultValue: 'Default value of text input option',
-    })
-    .addBooleanSwitch({
-      path: 'showSeriesCount',
-      name: 'Show series counter',
-      defaultValue: false,
-    })
-    .addRadio({
-      path: 'seriesCountSize',
-      defaultValue: 'sm',
-      name: 'Series counter size',
+    .addSelect({
+      path: 'field',
+      name: 'Field',
+      description: 'Choose field for display tree',
       settings: {
-        options: [
-          {
-            value: 'sm',
-            label: 'Small',
-          },
-          {
-            value: 'md',
-            label: 'Medium',
-          },
-          {
-            value: 'lg',
-            label: 'Large',
-          },
-        ],
+        options: [],
+        getOptions: async (ctx) => {
+          const fields = ctx.data[0]?.fields || []
+          return fields.map((field) => ({ label: field.name, value: field.name }))
+        },
       },
-      showIf: (config) => config.showSeriesCount,
-    });
-});
+    })
+    .addTextInput({
+      path: 'variableName',
+      name: 'Variable name',
+      description: 'Name of the variable to set the tree query',
+      defaultValue: 'treequery',
+    })
+  // .addRadio({
+  //   path: 'seriesCountSize',
+  //   defaultValue: 'sm',
+  //   name: 'Series counter size',
+  //   settings: {
+  //     options: [
+  //       {
+  //         value: 'sm',
+  //         label: 'Small',
+  //       },
+  //       {
+  //         value: 'md',
+  //         label: 'Medium',
+  //       },
+  //       {
+  //         value: 'lg',
+  //         label: 'Large',
+  //       },
+  //     ],
+  //   },
+  // })
+})
