@@ -2,12 +2,12 @@
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
   "name": "Tree",
-  "id": "tes-tree-panel",
+  "id": "targetenergy-tree-panel",
   "info": {
     "keywords": ["panel"],
     "description": "Tree view plugin",
     "author": {
-      "name": "Tes"
+      "name": "Target Energy Solutions"
     },
     "logos": {
       "small": "img/logo.svg",

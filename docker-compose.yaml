@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   grafana:
-    container_name: 'tes-tree-panel'
+    container_name: 'targetenergy-tree-panel'
     build:
       context: ./.config
       args:
@@ -10,5 +10,5 @@ services:
     ports:
       - 3000:3000/tcp
     volumes:
-      - ./dist:/var/lib/grafana/plugins/tes-tree-panel
+      - ./dist:/var/lib/grafana/plugins/targetenergy-tree-panel
       - ./provisioning:/etc/grafana/provisioning
