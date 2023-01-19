@@ -4,14 +4,6 @@
 
 Tree view plugin
 
-## Screenshot
-
-**Panel**
-![panel](img/panel.png 'Panel')
-
-**Data**
-![data](img/data.png 'Data')
-
 Turns hierarchy data tables into tree panel. Example tables like:
 
 ```sql

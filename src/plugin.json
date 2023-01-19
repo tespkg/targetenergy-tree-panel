@@ -13,7 +13,12 @@
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
-    "links": [],
+    "links": [
+      {
+        "name": "Github",
+        "url": "https://github.com/tespkg/targetenergy-tree-panel"
+      }
+    ],
     "screenshots": [
       {
         "name": "data",
