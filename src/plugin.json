@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
   "name": "Tree",
-  "id": "targetenergy-tree-panel",
+  "id": "tespkg-tree-panel",
   "info": {
     "keywords": ["panel"],
     "description": "Tree view plugin",
@@ -16,7 +16,7 @@
     "links": [
       {
         "name": "Github",
-        "url": "https://github.com/tespkg/targetenergy-tree-panel"
+        "url": "https://github.com/tespkg/tespkg-tree-panel"
       }
     ],
     "screenshots": [
