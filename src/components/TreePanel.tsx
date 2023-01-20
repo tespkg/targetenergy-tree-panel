@@ -35,19 +35,59 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     .map((f) => f?.values)
     .at(-1)
     ?.toArray()
+
+  const [showSelected, setShowSelected] = React.useState(false)
   let dataRef = React.useMemo(() => {
     return transformData(rows ?? [])
+    // Here we memorise the data if rows doesn't change, so that we can use the
+    // data reference to record the folding & selected state
+    //
+    // Also we're implementing show selected by filter down the data. However,
+    // because we're using references, we need to recompute the original data
+    // so that no nodes are lost. Hence including `showSelected` here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, useDeepCompareMemoize([rows, field]))
+  }, useDeepCompareMemoize([rows, field, showSelected]))
+
+  // show selected
+  const [selectedNodes, setSelectedNodes] = React.useState<TreeNodeData[]>([])
+  const selectedNodeIds = React.useRef<string[]>([])
+  selectedNodeIds.current = selectedNodes.map((n) => n.id)
+  dataRef = React.useMemo(() => {
+    // here data is always a clean state because it's recomputed from useMemo above
+    let data = dataRef
+    // restore selected state
+    const walk = (node: TreeNodeData) => {
+      if (selectedNodeIds.current.includes(node.id)) {
+        node.selected = true
+        let v = node
+        while (v.parent) {
+          v.parent.showChildren = true
+          v = v.parent
+        }
+      }
+      node.children?.forEach(walk)
+    }
+    walk({ id: '', name: '', children: data })
+    if (showSelected) {
+      const walk2 = (node: TreeNodeData) => {
+        node.children = node.children?.filter((n) => n.selected || n.showChildren)
+        node.children?.forEach(walk2)
+      }
+      walk2({ id: '', name: '', children: data })
+    }
+    return data
+  }, [dataRef, showSelected])
 
   // filter selection with search
   const [searchText, setSearchText] = React.useState('')
   const debouncedSearchText = useDebounce(searchText, 250)
   dataRef = React.useMemo(() => {
     const walk = (node: TreeNodeData) => {
+      const w = debouncedSearchText.replace(/[.+^${}()|[\]\\]/g, '\\$&') // regexp escape
+      const re = new RegExp(w.replace(/\*/g, '.*').replace(/\?/g, '.'), 'i')
       if (!debouncedSearchText) {
         node.matchSearch = undefined
-      } else if (node.name.match(new RegExp(debouncedSearchText, 'i'))) {
+      } else if (re.test(node.name)) {
         node.matchSearch = MatchSearch.match
         let v = node
         while (v.parent) {
@@ -66,7 +106,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   const [_, forceRender] = React.useState({})
   // console.log(rendercount++)
 
-  const handleFold = (expand?: boolean) => {
+  const handleToggleFold = (expand?: boolean) => {
     const walk = (node: TreeNodeData) => {
       node.showChildren = expand
       node.children?.forEach(walk)
@@ -75,7 +115,32 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     forceRender({})
   }
 
-  const handleUpdateTree = () => {
+  const handleToggleNode = (node: TreeNodeData) => {
+    node.showChildren = !node.showChildren
+    forceRender({})
+  }
+
+  const handleSelectNode = (node: TreeNodeData) => {
+    // exclusive selection: all parent & children needs to be deselected
+    const thisNode = node
+    thisNode.selected = !node.selected
+    if (thisNode.selected) {
+      // unselect all parent
+      while (node?.parent) {
+        node = node.parent
+        if (node?.selected) {
+          node.selected = false
+        }
+      }
+      // unselect all children
+      const walk = (node: TreeNodeData) => {
+        node.selected = false
+        node.children?.forEach(walk)
+      }
+      thisNode.children?.forEach(walk)
+    }
+
+    // walk all selected nodes and update query
     const selectedNodes: TreeNodeData[] = []
     const walk = (node: TreeNodeData) => {
       if (node.selected) {
@@ -102,12 +167,9 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     }
     const queryVar = replaceVariables(`$${variableName}`)
     if (queryVar !== query) {
-      // console.log(`location called, ${queryVar} !== ${query}`)
       locationService.partial({ ['var-' + variableName]: query })
-    } else {
-      // console.log(`updateTree called, ${queryVar} === ${query}`)
-      forceRender({})
     }
+    setSelectedNodes(selectedNodes)
   }
 
   return (
@@ -133,77 +195,47 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       />
       <div
         className={css`
-          display: flex;
+          & > * {
+            margin-right: 8px;
+            margin-bottom: 4px;
+          }
         `}
       >
-        <Button size="sm" onClick={() => handleFold(true)}>
+        <Button size="sm" onClick={() => handleToggleFold(true)}>
           Expand All
         </Button>
-        <Button size="sm" onClick={() => handleFold(false)}>
+        <Button size="sm" onClick={() => handleToggleFold(false)}>
           Collapse All
         </Button>
+        <Checkbox value={showSelected} label="Show Selected" onChange={() => setShowSelected((prev) => !prev)} />
       </div>
-      <TreeView items={dataRef} onUpdateTree={handleUpdateTree} />
+      <TreeView items={dataRef} onToggleNode={handleToggleNode} onSelectNode={handleSelectNode} />
     </div>
   )
 }
 
 type TreeViewProps = {
   items: TreeNodeData[]
-  onUpdateTree: () => void
+  onToggleNode: (node: TreeNodeData) => void
+  onSelectNode: (node: TreeNodeData) => void
 }
 
-const TreeView: React.FC<TreeViewProps> = ({ items, onUpdateTree }) => {
-  const nodes = items.map((item) => <TreeNode key={item.id} data={item} updateTree={onUpdateTree} />)
+const TreeView: React.FC<TreeViewProps> = ({ items, onToggleNode, onSelectNode }) => {
+  const nodes = items.map((item) => (
+    <TreeNode key={item.id} data={item} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
+  ))
   return <ul className={css``}>{nodes}</ul>
 }
 
 type TreeNodeProps = {
   data: TreeNodeData
-  updateTree: (_?: any) => void
+  onToggleNode: (node: TreeNodeData) => void
+  onSelectNode: (node: TreeNodeData) => void
 }
 
-const TreeNode: React.FC<TreeNodeProps> = ({ data, updateTree }) => {
-  const handleClick = (e: React.MouseEvent) => {
-    data.showChildren = !data.showChildren
-    // console.log('handleClick called')
-    updateTree()
-  }
-  const handleSelect = (e: React.FormEvent) => {
-    // stop propagation not working, setting onClick to sibling instead of parent
-    // e.preventDefault()
-    // e.stopPropagation()
-    // e.nativeEvent.stopImmediatePropagation()
-    // console.log('handleSelect called')
-    let node = data
-    const thisNode = node
-    thisNode.selected = !node.selected
-    if (thisNode.selected) {
-      // unselect all parent
-      while (node?.parent) {
-        node = node.parent
-        if (node?.selected) {
-          node.selected = false
-        }
-      }
-      // unselect all children
-      const walk = (node: TreeNodeData) => {
-        node.selected = false
-        node.children?.forEach(walk)
-      }
-      thisNode.children?.forEach(walk)
-    }
-    updateTree()
-  }
+const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode }) => {
   const hasChildren = data.children && data.children.length > 0
   let showChildren = data.showChildren || data.matchSearch === MatchSearch.childMatch
-  // const walk = (node: TreeNodeData) => {
-  //   if (node.matchSearch === MatchSearch.match) {
-  //     showChildren = true
-  //   }
-  //   node.children?.forEach(walk)
-  // }
-  // data.children?.forEach(walk)
 
   return (
     <li
@@ -224,21 +256,21 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, updateTree }) => {
             cursor: ${hasChildren ? 'pointer' : 'default'};
           `}
           name={showChildren ? 'angle-down' : 'angle-right'}
-          onClick={handleClick}
+          onClick={() => onToggleNode(data)}
         />
         <Checkbox
           className={css`
             margin-right: 6px;
           `}
           value={data.selected}
-          onChange={handleSelect}
+          onChange={() => onSelectNode(data)}
         />
         <Tooltip content={`id: ${data.id}, name: ${data.name}, type: ${data.type}`}>
           <span
             className={css`
               cursor: ${hasChildren ? 'pointer' : 'default'};
             `}
-            onClick={handleClick}
+            onClick={() => onToggleNode(data)}
           >
             {data.name}
           </span>
@@ -256,7 +288,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, updateTree }) => {
                 (child.matchSearch === MatchSearch.match ||
                   child.matchSearch === undefined ||
                   child.matchSearch === MatchSearch.childMatch) && (
-                  <TreeNode key={child.id} data={child} updateTree={updateTree} />
+                  <TreeNode key={child.id} data={child} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
                 )
             )}
         </ul>
@@ -342,3 +374,15 @@ function useDebounce<T>(value: T, delay?: number): T {
 
   return debouncedValue
 }
+
+// function usePrevious<T>(value: T) {
+//   // The ref object is a generic container whose current property is mutable ...
+//   // ... and can hold any value, similar to an instance property on a class
+//   const ref = React.useRef<T>()
+//   // Store current value in ref
+//   React.useEffect(() => {
+//     ref.current = value
+//   }, [value]) // Only re-run if value changes
+//   // Return previous value (happens before update in useEffect above)
+//   return ref.current
+// }

@@ -22,6 +22,12 @@ export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((b
       description: 'Name of the variable to set the tree query',
       defaultValue: 'treequery',
     })
+    .addTextInput({
+      path: 'formatQuery',
+      name: 'Format query',
+      description: 'Format selection into query, default: ',
+      defaultValue: '',
+    })
   // .addRadio({
   //   path: 'seriesCountSize',
   //   defaultValue: 'sm',

@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: Postgres
+    # <string, required> Sets the data source type.
+    type: postgres
+    access: proxy
+    uid: postgres-local
+    url: host.docker.internal:5432
+    database: arm
+    user: postgres
+    jsonData:
+      sslmode: disable
+    secureJsonData:
+      password: postgres
