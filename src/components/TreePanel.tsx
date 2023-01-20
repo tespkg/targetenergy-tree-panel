@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css'
 import { PanelProps } from '@grafana/data'
-import { locationService } from '@grafana/runtime'
-import { Button, Checkbox, Icon, Input, Tooltip, useStyles2 } from '@grafana/ui'
+import { locationService, getTemplateSrv } from '@grafana/runtime'
+import { Alert, Button, Checkbox, Icon, Input, Tooltip, useStyles2 } from '@grafana/ui'
 import * as React from 'react'
 import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
@@ -35,6 +35,23 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     .map((f) => f?.values)
     .at(-1)
     ?.toArray()
+
+  const [errorMsg, setErrorMsg] = React.useState<React.ReactNode | null>(null)
+
+  React.useEffect(() => {
+    const vars = getTemplateSrv().getVariables()
+    const hasVar = vars.find((v) => v.name === variableName)
+    if (!hasVar || hasVar.type !== 'textbox') {
+      setErrorMsg(
+        <Alert title="Variable not configured properly" severity="error">
+          Please create a &quot;Text box&quot; variable with name `{variableName}`.
+          <br /> This plugin sets the variable when a node is selected.
+          <br /> If you have the variable already, make sure it has the same name with the &quot;Variable name&quot; in
+          the panel config.
+        </Alert>
+      )
+    }
+  }, [variableName])
 
   const [showSelected, setShowSelected] = React.useState(false)
   let dataRef = React.useMemo(() => {
@@ -184,6 +201,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
         `
       )}
     >
+      {errorMsg}
       <Input
         label="Search"
         placeholder="Search"
