@@ -1,6 +1,6 @@
 {
   "name": "tree",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Tree view plugin",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
