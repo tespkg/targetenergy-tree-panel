@@ -183,6 +183,9 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       query += `${type} in (${entities[type].join(',')})`
     }
     const queryVar = replaceVariables(`$${variableName}`)
+    if (query === '') {
+      query = options.defaultValue
+    }
     if (queryVar !== query) {
       locationService.partial({ ['var-' + variableName]: query })
     }

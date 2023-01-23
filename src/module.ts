@@ -23,6 +23,12 @@ export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((b
       defaultValue: 'treequery',
     })
     .addTextInput({
+      path: 'defaultValue',
+      name: 'Default value for variable',
+      description: 'The default value to set the tree query',
+      defaultValue: '1=1',
+    })
+    .addTextInput({
       path: 'formatQuery',
       name: 'Format query',
       description: 'Format selection into query, default: ',
