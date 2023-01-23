@@ -5,6 +5,7 @@ import { Alert, Button, Checkbox, Icon, Input, Tooltip, useStyles2 } from '@graf
 import * as React from 'react'
 import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
+import * as Handlebars from 'handlebars'
 
 interface Props extends PanelProps<TreeOptions> {}
 
@@ -16,7 +17,9 @@ const getStyles = () => {
     `,
   }
 }
-// let rendercount = 0
+export const defaultFormatTemplate = `{{~#each .}}{{#if @index}} OR {{/if}}
+{{~@key}} in ({{#each .}}{{~#if @index}},{{/if}}{{~id}}{{~/each}})
+{{~/each}}`
 
 export const TreePanel: React.FC<Props> = ({ options, data, width, height, replaceVariables }) => {
   const styles = useStyles2(getStyles)
@@ -38,9 +41,15 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
 
   const [errorMsg, setErrorMsg] = React.useState<React.ReactNode | null>(null)
 
+  let formatTemplate = defaultFormatTemplate
+  if (options.formatQuery) {
+    formatTemplate = options.formatQuery
+  }
+
+  const hasVar = getTemplateSrv()
+    .getVariables()
+    .find((v) => v.name === variableName)
   React.useEffect(() => {
-    const vars = getTemplateSrv().getVariables()
-    const hasVar = vars.find((v) => v.name === variableName)
     if (!hasVar || hasVar.type !== 'textbox') {
       setErrorMsg(
         <Alert title="Variable not configured properly" severity="error">
@@ -50,8 +59,10 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
           the panel config.
         </Alert>
       )
+    } else {
+      setErrorMsg(null)
     }
-  }, [variableName])
+  }, [variableName, hasVar])
 
   const [showSelected, setShowSelected] = React.useState(false)
   let dataRef = React.useMemo(() => {
@@ -137,6 +148,18 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     forceRender({})
   }
 
+  const formatTpl = React.useMemo(() => {
+    setErrorMsg(null)
+    try {
+      return Handlebars.compile(formatTemplate)
+    } catch (e: any) {
+      if (e.message) {
+        setErrorMsg(<Alert title="incorrect format quiery">{e.message}</Alert>)
+      }
+      return Handlebars.compile(defaultFormatTemplate)
+    }
+  }, [formatTemplate])
+
   const handleSelectNode = (node: TreeNodeData) => {
     // exclusive selection: all parent & children needs to be deselected
     const thisNode = node
@@ -166,27 +189,31 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       node.children?.forEach(walk)
     }
     walk({ id: '', name: '', children: dataRef })
-    const entities: { [type: string]: string[] } = {}
+    const entities: { [type: string]: object[] } = {}
 
     selectedNodes.forEach((node) => {
       const type = node.type ?? ''
       if (!entities[type]) {
         entities[type] = []
       }
-      entities[type].push(node.id)
+      entities[type].push({ id: node.id, name: node.name, type: node.type })
     })
-    let query = ''
-    for (const type in entities) {
-      if (query) {
-        query += ' OR '
-      }
-      query += `${type} in (${entities[type].join(',')})`
-    }
+    // let query = ''
+    // for (const type in entities) {
+    //   if (query) {
+    //     query += ' OR '
+    //   }
+    //   query += `${type} in (${entities[type].join(',')})`
+    // }
+    let query = formatTpl(entities)
     const queryVar = replaceVariables(`$${variableName}`)
     if (query === '') {
       query = options.defaultValue
     }
     if (queryVar !== query) {
+      if (options.debug) {
+        console.log(`setting variable ${variableName}`, query)
+      }
       locationService.partial({ ['var-' + variableName]: query })
     }
     setSelectedNodes(selectedNodes)

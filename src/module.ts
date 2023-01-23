@@ -1,5 +1,5 @@
 import { PanelPlugin } from '@grafana/data'
-import { TreePanel } from 'components/TreePanel'
+import { defaultFormatTemplate, TreePanel } from 'components/TreePanel'
 import { TreeOptions } from 'types'
 
 export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((builder) => {
@@ -31,8 +31,19 @@ export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((b
     .addTextInput({
       path: 'formatQuery',
       name: 'Format query',
-      description: 'Format selection into query, default: ',
-      defaultValue: '',
+      settings: {
+        rows: 5,
+        expandTemplateVars: true,
+        useTextarea: true,
+      },
+      description: 'Format selection into query from a handlebars.js template',
+      defaultValue: defaultFormatTemplate,
+    })
+    .addBooleanSwitch({
+      path: 'debug',
+      name: 'Debug',
+      description: 'Enable debug mode',
+      defaultValue: false,
     })
   // .addRadio({
   //   path: 'seriesCountSize',
