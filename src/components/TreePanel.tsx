@@ -27,14 +27,6 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   const styles = useStyles2(getStyles)
   const { field, variableName } = options
 
-  // Explanation why we use reference instead of use setState:
-  // The problem is we want to implement exclusive selection:
-  // When we select a node, we need to deselect all children and parents.
-  // To implement this, we need to re-render the parts of the tree that's changed.
-  // In addition, we want the state of the whole tree to be triggered so that we can know which nodes are selected.
-  // For now, we're using a ref and update the whole tree when anything happens
-  //
-  // We could use use immer to facilitate this but it doesn't support recursive object, as we need to access parent node which is recursive
   const rows = data.series
     .map((d) => d.fields.find((f) => f.name === field))
     .map((f) => f?.values)
@@ -62,6 +54,18 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   }
 
   const [showSelected, setShowSelected] = React.useState(false)
+  // Explanation why we use reference instead of use setState:
+  // The problem is we want to implement exclusive selection. When we select a
+  // node, we need to deselect all children and parents. To implement the
+  // deselection effectively, we need to be able to walk to children as well as
+  // parents.
+  // We could use use immer to facilitate this but it doesn't support recursive
+  // object, and the parent node is recursive.
+  // So here our solution is to use just use one data object and by changing
+  // the nested properties of this object, we record the "select" and "fold"
+  // state.
+  // However, as the reference of the data doesn't change, react won't trigger
+  // a re-render. Hence the forceRender set state call
   let [dataRef, dataError] = React.useMemo(() => {
     try {
       return [transformData(rows ?? [])]
@@ -88,15 +92,13 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   }, useDeepCompareMemoize([rows, field, showSelected]))
 
   // show selected
-  const [selectedNodes, setSelectedNodes] = React.useState<TreeNodeData[]>([])
-  const selectedNodeIds = React.useRef<string[]>([])
-  selectedNodeIds.current = selectedNodes.map((n) => n.id)
+  const selectedNodes = React.useRef<TreeNodeData[]>([])
   dataRef = React.useMemo(() => {
     // here data is always a clean state because it's recomputed from useMemo above
     let data = dataRef
     // restore selected state
     const walk = (node: TreeNodeData) => {
-      if (selectedNodeIds.current.includes(node.id)) {
+      if (selectedNodes.current.map((n) => n.id).includes(node.id)) {
         node.selected = true
         let v = node
         while (v.parent) {
@@ -120,6 +122,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   // filter selection with search
   const [searchText, setSearchText] = React.useState('')
   const debouncedSearchText = useDebounce(searchText, 250)
+  // const debouncedSearchText = React.useDeferredValue(searchText)
   dataRef = React.useMemo(() => {
     const walk = (node: TreeNodeData) => {
       const w = debouncedSearchText.replace(/[.+^${}()|[\]\\]/g, '\\$&') // regexp escape
@@ -198,17 +201,19 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     }
 
     // walk all selected nodes and update query
-    const selectedNodes: TreeNodeData[] = []
+    const selected: TreeNodeData[] = []
     const walk = (node: TreeNodeData) => {
       if (node.selected) {
-        selectedNodes.push(node)
+        selected.push(node)
       }
       node.children?.forEach(walk)
     }
     walk({ id: '', name: '', children: dataRef })
+    selectedNodes.current = selected
+
     const entities: { [type: string]: object[] } = {}
 
-    selectedNodes.forEach((node) => {
+    selected.forEach((node) => {
       const type = node.type ?? ''
       if (!entities[type]) {
         entities[type] = []
@@ -233,7 +238,8 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       }
       locationService.partial({ ['var-' + variableName]: query })
     }
-    setSelectedNodes(selectedNodes)
+    // this should be needed, but in production build, the locationService.partial didn't trigger an re-render
+    forceRender({})
   }
 
   return (
