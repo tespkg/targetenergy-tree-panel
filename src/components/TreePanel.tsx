@@ -7,12 +7,14 @@ import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
 
+let rendercount = 0
+
 interface Props extends PanelProps<TreeOptions> {}
 
 const getStyles = () => {
   return {
     wrapper: css`
-      font-family: Open Sans;
+      font-family: Roboto, Helvetica, Arial, sans-serif;
       position: relative;
     `,
   }
@@ -39,8 +41,6 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     .at(-1)
     ?.toArray()
 
-  const [errorMsg, setErrorMsg] = React.useState<React.ReactNode | null>(null)
-
   let formatTemplate = defaultFormatTemplate
   if (options.formatQuery) {
     formatTemplate = options.formatQuery
@@ -49,24 +49,35 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   const hasVar = getTemplateSrv()
     .getVariables()
     .find((v) => v.name === variableName)
-  React.useEffect(() => {
-    if (!hasVar || hasVar.type !== 'textbox') {
-      setErrorMsg(
-        <Alert title="Variable not configured properly" severity="error">
-          Please create a &quot;Text box&quot; variable with name `{variableName}`.
-          <br /> This plugin sets the variable when a node is selected.
-          <br /> If you have the variable already, make sure it has the same name with the &quot;Variable name&quot; in
-          the panel config.
-        </Alert>
-      )
-    } else {
-      setErrorMsg(null)
-    }
-  }, [variableName, hasVar])
+  let variableConfigError: React.ReactNode
+  if (!hasVar || hasVar.type !== 'textbox') {
+    variableConfigError = (
+      <Alert title="Variable not configured properly" severity="error">
+        Please create a &quot;Text box&quot; variable with name `{variableName}`.
+        <br /> This plugin sets the variable when a node is selected.
+        <br /> If you have the variable already, make sure it has the same name with the &quot;Variable name&quot; in
+        the panel config.
+      </Alert>
+    )
+  }
 
   const [showSelected, setShowSelected] = React.useState(false)
-  let dataRef = React.useMemo(() => {
-    return transformData(rows ?? [])
+  let [dataRef, dataError] = React.useMemo(() => {
+    try {
+      return [transformData(rows ?? [])]
+    } catch (e) {
+      const error = (
+        <Alert title={`Invalid data format in "${options.field}" column`}>
+          Accepted data format are comma separated strings. Possible format of the strings:
+          <ul>
+            <li>id,id,id,...</li>
+            <li>id:name,id:name,id:name,...</li>
+            <li>id:name:type,id:name:type,id:name:type,...</li>
+          </ul>
+        </Alert>
+      )
+      return [[] as TreeNodeData[], error]
+    }
     // Here we memorise the data if rows doesn't change, so that we can use the
     // data reference to record the folding & selected state
     //
@@ -132,7 +143,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   }, [dataRef, debouncedSearchText])
 
   const [_, forceRender] = React.useState({})
-  // console.log(rendercount++)
+  console.log(rendercount++)
 
   const handleToggleFold = (expand?: boolean) => {
     const walk = (node: TreeNodeData) => {
@@ -148,16 +159,22 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     forceRender({})
   }
 
-  const formatTpl = React.useMemo(() => {
-    setErrorMsg(null)
+  const [formatTpl, formatTplError] = React.useMemo(() => {
+    let error: React.ReactNode
+    let fmt = formatTemplate
     try {
-      return Handlebars.compile(formatTemplate)
+      Handlebars.parse(formatTemplate)
     } catch (e: any) {
       if (e.message) {
-        setErrorMsg(<Alert title="incorrect format quiery">{e.message}</Alert>)
+        error = (
+          <Alert title="Incorrect format query">
+            <pre>{e.message}</pre>
+          </Alert>
+        )
       }
-      return Handlebars.compile(defaultFormatTemplate)
+      fmt = defaultFormatTemplate
     }
+    return [Handlebars.compile(fmt), error]
   }, [formatTemplate])
 
   const handleSelectNode = (node: TreeNodeData) => {
@@ -231,7 +248,9 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
         `
       )}
     >
-      {errorMsg}
+      {variableConfigError}
+      {formatTplError}
+      {dataError}
       <Input
         label="Search"
         placeholder="Search"
