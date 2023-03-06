@@ -39,6 +39,12 @@ export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((b
       description: 'Format selection into query from a handlebars.js template',
       defaultValue: defaultFormatTemplate,
     })
+    .addNumberInput({
+      path: 'defaultExpansionLevel',
+      name: 'Default Expansion Level',
+      description: 'The default level value to expand tree at first look',
+      defaultValue: 6,
+    })
     .addBooleanSwitch({
       path: 'debug',
       name: 'Debug',
