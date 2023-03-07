@@ -1,6 +1,5 @@
 import React from 'react'
 import { ClassNamesArg, css, cx } from '@emotion/css'
-import { DirectionType } from 'commons/types/direction-type'
 import * as Constants from './constants'
 import './style.css'
 
@@ -50,7 +49,7 @@ const ExpandShape: React.FC<ExpandShapeProps> = ({ className, isExpanded, onClic
               stroke-width: ${strokeWidth}px;
             `,
             'expand-shape--triangle',
-            isExpanded ? DirectionType.Down : DirectionType.Right
+            isExpanded ? 'expanded' : 'collapsed'
           )}
           points={trianglePoints}
         />
