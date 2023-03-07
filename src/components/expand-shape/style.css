@@ -1,0 +1,57 @@
+@keyframes rotateToUp {
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes rotateToDown {
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes rotateToLeft {
+  to {
+    transform: rotate(-90deg);
+  }
+}
+
+@keyframes rotateToRight {
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+.expand-shape {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.expand-shape--triangle {
+  stroke-linejoin: round;
+  fill: #8f9ba7;
+  stroke: #8f9ba7;
+  transform-origin: 50% 50%;
+  animation-duration: 0.3s;
+}
+
+.expand-shape--triangle.up {
+  animation-name: rotateToUp;
+  transform: rotate(0deg);
+}
+
+.expand-shape--triangle.down {
+  animation-name: rotateToDown;
+  transform: rotate(180deg);
+}
+
+.expand-shape--triangle.left {
+  animation-name: rotateToLeft;
+  transform: rotate(-90deg);
+}
+
+.expand-shape--triangle.right {
+  animation-name: rotateToRight;
+  transform: rotate(90deg);
+}
