@@ -25,7 +25,7 @@ export const defaultFormatTemplate = `{{~#each .}}{{#if @index}} OR {{/if}}
 
 export const TreePanel: React.FC<Props> = ({ options, data, width, height, replaceVariables }) => {
   const styles = useStyles2(getStyles)
-  const { field, variableName } = options
+  const { field, variableName, defaultExpansionLevel } = options
 
   const rows = data.series
     .map((d) => d.fields.find((f) => f.name === field))
@@ -59,16 +59,16 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   // node, we need to deselect all children and parents. To implement the
   // deselection effectively, we need to be able to walk to children as well as
   // parents.
-  // We could use use immer to facilitate this but it doesn't support recursive
+  // We could use immer to facilitate this but it doesn't support recursive
   // object, and the parent node is recursive.
-  // So here our solution is to use just use one data object and by changing
+  // So here our solution is to use just one data object and by changing
   // the nested properties of this object, we record the "select" and "fold"
   // state.
   // However, as the reference of the data doesn't change, react won't trigger
   // a re-render. Hence the forceRender set state call
   let [dataRef, dataError] = React.useMemo(() => {
     try {
-      return [transformData(rows ?? [])]
+      return [transformData(rows ?? [], defaultExpansionLevel)]
     } catch (e) {
       const error = (
         <Alert title={`Invalid data format in "${options.field}" column`}>
@@ -89,7 +89,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     // because we're using references, we need to recompute the original data
     // so that no nodes are lost. Hence including `showSelected` here
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, useDeepCompareMemoize([rows, field, showSelected]))
+  }, useDeepCompareMemoize([rows, field, showSelected, defaultExpansionLevel]))
 
   // show selected
   const selectedNodes = React.useRef<TreeNodeData[]>([])
@@ -296,7 +296,7 @@ type TreeViewProps = {
 const TreeView: React.FC<TreeViewProps> = ({ items, onToggleNode, onSelectNode }) => {
   const nodes = items.map((item) => (
     <TreeNode key={item.id} data={item} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
-  ))
+    ))
   return <ul className={css``}>{nodes}</ul>
 }
 
@@ -388,18 +388,22 @@ type TreeNodeData = {
   matchSearch?: MatchSearch
 }
 
-function transformData(rows: string[]): TreeNodeData[] {
+function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
+  // splits each row into items 
   const table = rows.map((row) =>
     row.split(',').map((column) => {
       const parts = column.split(':')
+      // default we suppose id,id,id,... format 
       const item: TreeNodeData = {
         id: parts[0],
         name: parts[0],
       }
-      if (parts.length >= 2) {
+      // let's check if we have id:name,id:name,id:name,... format 
+      if (parts.length > 1) {
         item.name = parts[1]
       }
-      if (parts.length >= 3) {
+      // let's check if we have id:name:type,id:name:type,id:name:type,... format 
+      if (parts.length > 2) {
         item.type = parts[2]
       }
       return item
@@ -409,18 +413,21 @@ function transformData(rows: string[]): TreeNodeData[] {
   let items: TreeNodeData[] = root
   for (let i = 0; i < table.length; i++) {
     const row = table[i]
-    for (let j = 0; j < row.length; j++) {
-      const item = row[j]
-      if (j === 0) {
+    for (let levelIndex = 0; levelIndex < row.length; levelIndex++) {
+      const item = row[levelIndex]
+      if (levelIndex === 0) {
         items = root
       } else {
         // find parent level
-        const parent = items.find((i) => i.id === row[j - 1].id) ?? throwExpression('parent not found')
+        const parent = items.find((i) => i.id === row[levelIndex - 1].id) ?? throwExpression('parent not found')
         if (!parent.children) {
           parent.children = []
         }
         items = parent.children
         item.parent = parent
+      }
+      if (levelIndex < expansionLevel){
+        item.showChildren = true
       }
       if (items.findIndex((i) => i.id === item.id) < 0) {
         items.push(item)
