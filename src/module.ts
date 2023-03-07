@@ -43,7 +43,7 @@ export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((b
       path: 'defaultExpansionLevel',
       name: 'Default Expansion Level',
       description: 'The default level value to expand tree at first look',
-      defaultValue: 6,
+      defaultValue: 3,
     })
     .addBooleanSwitch({
       path: 'debug',
