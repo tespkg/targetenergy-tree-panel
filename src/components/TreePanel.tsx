@@ -1,11 +1,12 @@
 import { css, cx } from '@emotion/css'
 import { PanelProps } from '@grafana/data'
 import { locationService, getTemplateSrv } from '@grafana/runtime'
-import { Alert, Button, Checkbox, Icon, Input, Tooltip, useStyles2 } from '@grafana/ui'
+import { Alert, Button, Checkbox, Input, Tooltip, useStyles2 } from '@grafana/ui'
 import * as React from 'react'
 import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
+import ExpandShape from './expand-shape/expand-shape'
 
 let rendercount = 0
 
@@ -82,7 +83,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       )
       return [[] as TreeNodeData[], error]
     }
-    // Here we memorise the data if rows doesn't change, so that we can use the
+    // Here we memorize the data if rows doesn't change, so that we can use the
     // data reference to record the folding & selected state
     //
     // Also we're implementing show selected by filter down the data. However,
@@ -323,12 +324,13 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
           align-items: center;
         `)}
       >
-        <Icon
+        <ExpandShape
           className={css`
             visibility: ${hasChildren ? 'visible' : 'hidden'};
             cursor: ${hasChildren ? 'pointer' : 'default'};
+            margin-right: 10px;
           `}
-          name={showChildren ? 'angle-down' : 'angle-right'}
+          isExpanded={showChildren}
           onClick={() => onToggleNode(data)}
         />
         <Checkbox
