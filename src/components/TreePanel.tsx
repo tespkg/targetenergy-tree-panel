@@ -426,8 +426,7 @@ function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
         items = parent.children
         item.parent = parent
       }
-      const levelNumber = levelIndex + 1
-      if (levelNumber <= expansionLevel){
+      if (levelIndex < expansionLevel){
         item.showChildren = true
       }
       if (items.findIndex((i) => i.id === item.id) < 0) {
