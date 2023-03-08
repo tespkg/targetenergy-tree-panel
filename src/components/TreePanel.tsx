@@ -274,15 +274,20 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
         `}
       />
       <Toolbar>
-        <Button size="sm" onClick={() => handleToggleFold(true)} className="tpp--button primary">
+        <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(true)}>
           Expand All
         </Button>
-        <Button size="sm" onClick={() => handleToggleFold(false)} className="tpp--button primary">
+        <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(false)}>
           Collapse All
         </Button>
       </Toolbar>
       <Toolbar>
-        <Checkbox value={showSelected} label="Show Selected" onChange={() => setShowSelected((prev) => !prev)} />
+        <Checkbox
+          className="tpp--checkbox"
+          value={showSelected}
+          label="Show Selected"
+          onChange={() => setShowSelected((prev) => !prev)}
+        />
       </Toolbar>
       <HorizontalSeparator />
       <TreeView items={dataRef} onToggleNode={handleToggleNode} onSelectNode={handleSelectNode} />
