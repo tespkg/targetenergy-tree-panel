@@ -14,7 +14,7 @@ import './style.css'
 // This is temporary, read its comments for more details.
 import './temporary-style.css'
 
-let rendercount = 0
+let renderCount = 0
 
 interface Props extends PanelProps<TreeOptions> {}
 
@@ -153,7 +153,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   }, [dataRef, debouncedSearchText])
 
   const [_, forceRender] = React.useState({})
-  console.log(rendercount++)
+  console.log(renderCount++)
 
   const handleToggleFold = (expand?: boolean) => {
     const walk = (node: TreeNodeData) => {
