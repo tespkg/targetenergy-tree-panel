@@ -274,10 +274,10 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
         `}
       />
       <Toolbar>
-        <Button size="sm" onClick={() => handleToggleFold(true)} className="tree-panel--button primary">
+        <Button size="sm" onClick={() => handleToggleFold(true)} className="tpp--button primary">
           Expand All
         </Button>
-        <Button size="sm" onClick={() => handleToggleFold(false)} className="tree-panel--button primary">
+        <Button size="sm" onClick={() => handleToggleFold(false)} className="tpp--button primary">
           Collapse All
         </Button>
       </Toolbar>
