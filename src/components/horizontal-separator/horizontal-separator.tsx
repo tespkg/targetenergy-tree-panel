@@ -7,7 +7,7 @@ type HorizontalSeparatorProps = {
 }
 
 const HorizontalSeparator: React.FC<HorizontalSeparatorProps> = ({ className }) => {
-  return <div className={cx('horizontal-separator', className)}></div>
+  return <div className={cx('tpp-horizontal-separator', className)}></div>
 }
 
 export default React.memo(HorizontalSeparator)
