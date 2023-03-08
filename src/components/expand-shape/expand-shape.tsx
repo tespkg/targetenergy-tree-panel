@@ -30,7 +30,7 @@ const ExpandShape: React.FC<ExpandShapeProps> = ({ className, isExpanded, onClic
           width: ${Constants.EXPAND_SHAPE_WIDTH}px;
           height: ${Constants.EXPAND_SHAPE_HEIGHT}px;
         `,
-        'expand-shape',
+        'tpp-expand-shape',
         className
       )}
       onClick={onClick}
@@ -48,7 +48,7 @@ const ExpandShape: React.FC<ExpandShapeProps> = ({ className, isExpanded, onClic
             css`
               stroke-width: ${strokeWidth}px;
             `,
-            'expand-shape--triangle',
+            'tpp-expand-shape--triangle',
             isExpanded ? 'expanded' : 'collapsed'
           )}
           points={trianglePoints}

@@ -16,13 +16,14 @@
   }
 }
 
-.expand-shape {
+/* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana class names. */
+.tpp-expand-shape {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.expand-shape--triangle {
+.tpp-expand-shape--triangle {
   stroke-linejoin: round;
   fill: #8f9ba7;
   stroke: #8f9ba7;
@@ -30,12 +31,12 @@
   animation-duration: 0.3s;
 }
 
-.expand-shape--triangle.expanded {
+.tpp-expand-shape--triangle.expanded {
   animation-name: expandAnimation;
   transform: rotate(180deg);
 }
 
-.expand-shape--triangle.collapsed {
+.tpp-expand-shape--triangle.collapsed {
   animation-name: collapseAnimation;
   transform: rotate(90deg);
 }
