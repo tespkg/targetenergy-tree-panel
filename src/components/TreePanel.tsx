@@ -7,6 +7,8 @@ import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
 import ExpandShape from './expand-shape/expand-shape'
+import Toolbar from './toolbar'
+import HorizontalSeparator from './horizontal-separator'
 import './style.css'
 
 // This is temporary, read its comments for more details.
@@ -271,22 +273,18 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
           margin-bottom: 8px;
         `}
       />
-      <div
-        className={css`
-          & > * {
-            margin-right: 8px;
-            margin-bottom: 4px;
-          }
-        `}
-      >
+      <Toolbar>
         <Button size="sm" onClick={() => handleToggleFold(true)} className="tree-panel--button primary">
           Expand All
         </Button>
         <Button size="sm" onClick={() => handleToggleFold(false)} className="tree-panel--button primary">
           Collapse All
         </Button>
+      </Toolbar>
+      <Toolbar>
         <Checkbox value={showSelected} label="Show Selected" onChange={() => setShowSelected((prev) => !prev)} />
-      </div>
+      </Toolbar>
+      <HorizontalSeparator />
       <TreeView items={dataRef} onToggleNode={handleToggleNode} onSelectNode={handleSelectNode} />
     </div>
   )
