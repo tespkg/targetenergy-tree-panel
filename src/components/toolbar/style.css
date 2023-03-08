@@ -1,4 +1,5 @@
-.toolbar {
+/* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana class names. */
+.tpp-toolbar {
   display: flex;
   gap: 10px;
   align-items: center;
