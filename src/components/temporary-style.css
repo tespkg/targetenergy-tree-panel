@@ -1,0 +1,22 @@
+/* This is temporary for tree panel plugin till we figure it out 
+ * how to apply lots of styles globally over Grafana and installed plugins. 
+ * So we should keep this for now, after that just REMOVE this file and its reference. 
+ */
+
+/* Button */
+.tree-panel--button.primary {
+  background-color: #e6effe;
+  border-radius: 5px;
+  height: 32px;
+}
+
+.tree-panel--button.primary:hover {
+  box-shadow: rgb(24 26 27 / 20%) -2px 3px 5px;
+}
+
+/* Button title */
+.tree-panel--button.primary span {
+  color: #1979ff;
+  font-size: 16px;
+  padding: 5px;
+}

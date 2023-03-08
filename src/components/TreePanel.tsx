@@ -7,6 +7,10 @@ import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
 import ExpandShape from './expand-shape/expand-shape'
+import './style.css'
+
+// This is temporary, read its comments for more details.
+import './temporary-style.css'
 
 let rendercount = 0
 
@@ -275,10 +279,10 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
           }
         `}
       >
-        <Button size="sm" onClick={() => handleToggleFold(true)}>
+        <Button size="sm" onClick={() => handleToggleFold(true)} className="tree-panel--button primary">
           Expand All
         </Button>
-        <Button size="sm" onClick={() => handleToggleFold(false)}>
+        <Button size="sm" onClick={() => handleToggleFold(false)} className="tree-panel--button primary">
           Collapse All
         </Button>
         <Checkbox value={showSelected} label="Show Selected" onChange={() => setShowSelected((prev) => !prev)} />
@@ -297,7 +301,7 @@ type TreeViewProps = {
 const TreeView: React.FC<TreeViewProps> = ({ items, onToggleNode, onSelectNode }) => {
   const nodes = items.map((item) => (
     <TreeNode key={item.id} data={item} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
-    ))
+  ))
   return <ul className={css``}>{nodes}</ul>
 }
 
@@ -391,20 +395,20 @@ type TreeNodeData = {
 }
 
 function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
-  // splits each row into items 
+  // splits each row into items
   const table = rows.map((row) =>
     row.split(',').map((column) => {
       const parts = column.split(':')
-      // default we suppose id,id,id,... format 
+      // default we suppose id,id,id,... format
       const item: TreeNodeData = {
         id: parts[0],
         name: parts[0],
       }
-      // let's check if we have id:name,id:name,id:name,... format 
+      // let's check if we have id:name,id:name,id:name,... format
       if (parts.length > 1) {
         item.name = parts[1]
       }
-      // let's check if we have id:name:type,id:name:type,id:name:type,... format 
+      // let's check if we have id:name:type,id:name:type,id:name:type,... format
       if (parts.length > 2) {
         item.type = parts[2]
       }
@@ -428,7 +432,7 @@ function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
         items = parent.children
         item.parent = parent
       }
-      if (levelIndex < expansionLevel){
+      if (levelIndex < expansionLevel) {
         item.showChildren = true
       }
       if (items.findIndex((i) => i.id === item.id) < 0) {
