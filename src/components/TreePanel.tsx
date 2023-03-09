@@ -379,18 +379,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
   )
 }
 
-type TreeNodeData = {
-  id: string
-  name: string
-  type?: string
-  parent?: TreeNodeData
-  children?: TreeNodeData[]
-  // ui state
-  showChildren?: boolean
-  selected?: boolean
-  matchSearch?: MatchSearch
-}
-
 function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
   // splits each row into items
   const table = rows.map((row) =>
