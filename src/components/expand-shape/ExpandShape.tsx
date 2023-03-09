@@ -1,6 +1,6 @@
 import React from 'react'
 import { ClassNamesArg, css, cx } from '@emotion/css'
-import * as Constants from './constants'
+import * as Constants from './Constants'
 import './style.css'
 
 type ExpandShapeProps = {

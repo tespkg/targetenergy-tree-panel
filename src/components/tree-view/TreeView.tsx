@@ -1,6 +1,6 @@
 import { css } from '@emotion/css'
-import { TreeNodeData } from 'commons/types/tree-node-data'
-import TreeNode from 'components/tree-node'
+import { TreeNodeData } from 'commons/types/TreeNodeData'
+import TreeNode from 'components/tree-node/TreeNode'
 import React from 'react'
 
 type TreeViewProps = {

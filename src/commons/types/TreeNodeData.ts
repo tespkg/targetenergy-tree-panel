@@ -1,4 +1,4 @@
-import { MatchSearch } from 'commons/enums/match-search'
+import { MatchSearch } from 'commons/enums/MatchSearch'
 
 export type TreeNodeData = {
   id: string
