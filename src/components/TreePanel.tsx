@@ -1,14 +1,14 @@
 import { css, cx } from '@emotion/css'
 import { PanelProps } from '@grafana/data'
 import { locationService, getTemplateSrv } from '@grafana/runtime'
-import { Alert, Button, Checkbox, Input, Tooltip, useStyles2 } from '@grafana/ui'
+import { Alert, Button, Checkbox, Input, useStyles2 } from '@grafana/ui'
 import * as React from 'react'
 import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
-import ExpandShape from './expand-shape/expand-shape'
 import Toolbar from './toolbar'
 import HorizontalSeparator from './horizontal-separator'
+import TreeNode from './tree-node'
 import './style.css'
 
 // This is temporary, read its comments for more details.
@@ -306,77 +306,6 @@ const TreeView: React.FC<TreeViewProps> = ({ items, onToggleNode, onSelectNode }
     <TreeNode key={item.id} data={item} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
   ))
   return <ul className={css``}>{nodes}</ul>
-}
-
-type TreeNodeProps = {
-  data: TreeNodeData
-  onToggleNode: (node: TreeNodeData) => void
-  onSelectNode: (node: TreeNodeData) => void
-}
-
-const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode }) => {
-  const hasChildren = data.children && data.children.length > 0
-  let showChildren = data.showChildren || data.matchSearch === MatchSearch.childMatch
-
-  return (
-    <li
-      className={cx(css`
-        list-style: none;
-      `)}
-    >
-      <div
-        className={cx(css`
-          height: 2rem;
-          display: flex;
-          align-items: center;
-        `)}
-      >
-        <ExpandShape
-          className={css`
-            visibility: ${hasChildren ? 'visible' : 'hidden'};
-            cursor: ${hasChildren ? 'pointer' : 'default'};
-            margin-right: 10px;
-          `}
-          isExpanded={showChildren}
-          onClick={() => onToggleNode(data)}
-        />
-        <Checkbox
-          className={css`
-            margin-right: 6px;
-          `}
-          value={data.selected}
-          onChange={() => onSelectNode(data)}
-        />
-        <Tooltip content={`id: ${data.id}, name: ${data.name}, type: ${data.type}`}>
-          <span
-            className={css`
-              cursor: ${hasChildren ? 'pointer' : 'default'};
-            `}
-            onClick={() => onToggleNode(data)}
-          >
-            {data.name}
-          </span>
-        </Tooltip>
-      </div>
-      {hasChildren && (
-        <ul
-          className={css`
-            margin-left: 16px;
-          `}
-        >
-          {showChildren &&
-            data.children?.map(
-              (child) =>
-                (child.matchSearch === MatchSearch.match ||
-                  child.matchSearch === undefined ||
-                  child.matchSearch === MatchSearch.childMatch) && (
-                  <TreeNode key={child.id} data={child} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
-                )
-            )}
-        </ul>
-      )}
-    </li>
-  )
 }
 
 function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
