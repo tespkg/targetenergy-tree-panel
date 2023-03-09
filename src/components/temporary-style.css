@@ -4,7 +4,7 @@
  * So we should keep this for now, after that just REMOVE this file and its reference. 
  */
 
-/* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana 'toolbar' class name. */
+/* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana class names. */
 
 /* Button */
 .tpp--button.primary {

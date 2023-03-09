@@ -11,7 +11,6 @@ import { MatchSearch } from 'commons/enums/match-search'
 import Toolbar from './toolbar'
 import HorizontalSeparator from './horizontal-separator'
 import TreeView from './tree-view'
-import './style.css'
 
 // This is temporary, read its comments for more details.
 import './temporary-style.css'
