@@ -4,6 +4,7 @@ import { MatchSearch } from 'commons/enums/match-search'
 import { TreeNodeData } from 'commons/types/tree-node-data'
 import ExpandShape from 'components/expand-shape'
 import React from 'react'
+import './style.css'
 
 type TreeNodeProps = {
   data: TreeNodeData
@@ -46,9 +47,12 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
         />
         <Tooltip content={`id: ${data.id}, name: ${data.name}, type: ${data.type}`}>
           <span
-            className={css`
-              cursor: ${hasChildren ? 'pointer' : 'default'};
-            `}
+            className={cx(
+              css`
+                cursor: ${hasChildren ? 'pointer' : 'default'};
+              `,
+              'tpp--tree-node--checkbox-title'
+            )}
             onClick={() => onToggleNode(data)}
           >
             {data.name}
