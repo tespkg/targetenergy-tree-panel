@@ -8,7 +8,7 @@ import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
 import Toolbar from './toolbar'
 import HorizontalSeparator from './horizontal-separator'
-import TreeNode from './tree-node'
+import TreeView from './tree-view'
 import './style.css'
 
 // This is temporary, read its comments for more details.
@@ -293,19 +293,6 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       <TreeView items={dataRef} onToggleNode={handleToggleNode} onSelectNode={handleSelectNode} />
     </div>
   )
-}
-
-type TreeViewProps = {
-  items: TreeNodeData[]
-  onToggleNode: (node: TreeNodeData) => void
-  onSelectNode: (node: TreeNodeData) => void
-}
-
-const TreeView: React.FC<TreeViewProps> = ({ items, onToggleNode, onSelectNode }) => {
-  const nodes = items.map((item) => (
-    <TreeNode key={item.id} data={item} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
-  ))
-  return <ul className={css``}>{nodes}</ul>
 }
 
 function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
