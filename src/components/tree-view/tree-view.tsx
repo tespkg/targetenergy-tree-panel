@@ -1,4 +1,5 @@
 import { css } from '@emotion/css'
+import { TreeNodeData } from 'commons/types/tree-node-data'
 import TreeNode from 'components/tree-node'
 import React from 'react'
 
