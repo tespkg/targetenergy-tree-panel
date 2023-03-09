@@ -379,12 +379,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
   )
 }
 
-enum MatchSearch {
-  match,
-  notMatch,
-  childMatch,
-}
-
 type TreeNodeData = {
   id: string
   name: string
