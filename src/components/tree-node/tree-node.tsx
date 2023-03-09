@@ -1,5 +1,7 @@
 import { css, cx } from '@emotion/css'
 import { Checkbox, Tooltip } from '@grafana/ui'
+import { MatchSearch } from 'commons/enums/match-search'
+import { TreeNodeData } from 'commons/types/tree-node-data'
 import ExpandShape from 'components/expand-shape'
 import React from 'react'
 

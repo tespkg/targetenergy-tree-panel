@@ -1,4 +1,6 @@
-type TreeNodeData = {
+import { MatchSearch } from 'commons/enums/match-search'
+
+export type TreeNodeData = {
   id: string
   name: string
   type?: string
