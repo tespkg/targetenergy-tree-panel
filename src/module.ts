@@ -1,5 +1,5 @@
 import { PanelPlugin } from '@grafana/data'
-import { defaultFormatTemplate, TreePanel } from 'components/TreePanel'
+import { defaultFormatTemplate, TreePanel } from 'components/tree-panel'
 import { TreeOptions } from 'types'
 
 export const plugin = new PanelPlugin<TreeOptions>(TreePanel).setPanelOptions((builder) => {
