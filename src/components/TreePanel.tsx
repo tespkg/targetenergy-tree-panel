@@ -8,6 +8,7 @@ import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
 import { TreeNodeData } from 'commons/types/TreeNodeData'
 import { MatchSearch } from 'commons/enums/MatchSearch'
+import GearSvg from 'img/gear.svg'
 import Toolbar from './toolbar/Toolbar'
 import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
 import TreeView from './tree-view/TreeView'
@@ -265,15 +266,20 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       {variableConfigError}
       {formatTplError}
       {dataError}
-      <Input
-        label="Search"
-        placeholder="Search"
-        value={searchText}
-        onChange={(e) => setSearchText(e.currentTarget.value)}
-        className={css`
-          margin-bottom: 8px;
-        `}
-      />
+      <Toolbar>
+        <Input
+          label="Search"
+          placeholder="Search"
+          value={searchText}
+          onChange={(e) => setSearchText(e.currentTarget.value)}
+          className={css`
+            margin-bottom: 8px;
+          `}
+        />
+        <Button className="tpp--button image" size="sm" onClick={() => handleToggleFold(true)}>
+          <img src={GearSvg} alt="Tree Settings" />
+        </Button>
+      </Toolbar>
       <Toolbar>
         <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(true)}>
           Expand All
