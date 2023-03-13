@@ -14,9 +14,9 @@ const ExpandShape: React.FC<ExpandShapeProps> = ({ className, isExpanded, onClic
     const cellSize = Constants.EXPAND_SHAPE_WIDTH / 10
     //
     let ps = [
-      [cellSize * 1, cellSize * 8],
-      [cellSize * 5, cellSize * 2],
-      [cellSize * 9, cellSize * 8],
+      [cellSize * 2, cellSize * 1],
+      [cellSize * 8, cellSize * 5],
+      [cellSize * 2, cellSize * 9],
     ]
     return ps.map((point) => point.join(',')).join(' ')
   }, [])
