@@ -8,9 +8,9 @@ import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
 import { TreeNodeData } from 'commons/types/TreeNodeData'
 import { MatchSearch } from 'commons/enums/MatchSearch'
-import Toolbar from './toolbar/Toolbar'
-import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
-import TreeView from './tree-view/TreeView'
+import Toolbar from 'components/toolbar/Toolbar'
+import HorizontalSeparator from 'components/horizontal-separator/HorizontalSeparator'
+import TreeView from 'components/tree-view/TreeView'
 
 // This is temporary, read its comments for more details.
 import './temporary-style.css'
