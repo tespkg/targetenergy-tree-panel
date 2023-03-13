@@ -1,13 +1,21 @@
 import { css, cx } from '@emotion/css'
 import { PanelProps } from '@grafana/data'
 import { locationService, getTemplateSrv } from '@grafana/runtime'
-import { Alert, Button, Checkbox, Icon, Input, Tooltip, useStyles2 } from '@grafana/ui'
+import { Alert, Button, Checkbox, Input, useStyles2 } from '@grafana/ui'
 import * as React from 'react'
 import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
+import { TreeNodeData } from 'commons/types/TreeNodeData'
+import { MatchSearch } from 'commons/enums/MatchSearch'
+import Toolbar from 'components/toolbar/Toolbar'
+import HorizontalSeparator from 'components/horizontal-separator/HorizontalSeparator'
+import TreeView from 'components/tree-view/TreeView'
 
-let rendercount = 0
+// This is temporary, read its comments for more details.
+import './temporary-style.css'
+
+let renderCount = 0
 
 interface Props extends PanelProps<TreeOptions> {}
 
@@ -82,7 +90,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       )
       return [[] as TreeNodeData[], error]
     }
-    // Here we memorise the data if rows doesn't change, so that we can use the
+    // Here we memorize the data if rows doesn't change, so that we can use the
     // data reference to record the folding & selected state
     //
     // Also we're implementing show selected by filter down the data. However,
@@ -146,7 +154,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   }, [dataRef, debouncedSearchText])
 
   const [_, forceRender] = React.useState({})
-  console.log(rendercount++)
+  console.log(renderCount++)
 
   const handleToggleFold = (expand?: boolean) => {
     const walk = (node: TreeNodeData) => {
@@ -266,143 +274,43 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
           margin-bottom: 8px;
         `}
       />
-      <div
-        className={css`
-          & > * {
-            margin-right: 8px;
-            margin-bottom: 4px;
-          }
-        `}
-      >
-        <Button size="sm" onClick={() => handleToggleFold(true)}>
+      <Toolbar>
+        <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(true)}>
           Expand All
         </Button>
-        <Button size="sm" onClick={() => handleToggleFold(false)}>
+        <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(false)}>
           Collapse All
         </Button>
-        <Checkbox value={showSelected} label="Show Selected" onChange={() => setShowSelected((prev) => !prev)} />
-      </div>
+      </Toolbar>
+      <Toolbar>
+        <Checkbox
+          className="tpp--checkbox"
+          value={showSelected}
+          label="Show Selected"
+          onChange={() => setShowSelected((prev) => !prev)}
+        />
+      </Toolbar>
+      <HorizontalSeparator />
       <TreeView items={dataRef} onToggleNode={handleToggleNode} onSelectNode={handleSelectNode} />
     </div>
   )
 }
 
-type TreeViewProps = {
-  items: TreeNodeData[]
-  onToggleNode: (node: TreeNodeData) => void
-  onSelectNode: (node: TreeNodeData) => void
-}
-
-const TreeView: React.FC<TreeViewProps> = ({ items, onToggleNode, onSelectNode }) => {
-  const nodes = items.map((item) => (
-    <TreeNode key={item.id} data={item} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
-    ))
-  return <ul className={css``}>{nodes}</ul>
-}
-
-type TreeNodeProps = {
-  data: TreeNodeData
-  onToggleNode: (node: TreeNodeData) => void
-  onSelectNode: (node: TreeNodeData) => void
-}
-
-const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode }) => {
-  const hasChildren = data.children && data.children.length > 0
-  let showChildren = data.showChildren || data.matchSearch === MatchSearch.childMatch
-
-  return (
-    <li
-      className={cx(css`
-        list-style: none;
-      `)}
-    >
-      <div
-        className={cx(css`
-          height: 2rem;
-          display: flex;
-          align-items: center;
-        `)}
-      >
-        <Icon
-          className={css`
-            visibility: ${hasChildren ? 'visible' : 'hidden'};
-            cursor: ${hasChildren ? 'pointer' : 'default'};
-          `}
-          name={showChildren ? 'angle-down' : 'angle-right'}
-          onClick={() => onToggleNode(data)}
-        />
-        <Checkbox
-          className={css`
-            margin-right: 6px;
-          `}
-          value={data.selected}
-          onChange={() => onSelectNode(data)}
-        />
-        <Tooltip content={`id: ${data.id}, name: ${data.name}, type: ${data.type}`}>
-          <span
-            className={css`
-              cursor: ${hasChildren ? 'pointer' : 'default'};
-            `}
-            onClick={() => onToggleNode(data)}
-          >
-            {data.name}
-          </span>
-        </Tooltip>
-      </div>
-      {hasChildren && (
-        <ul
-          className={css`
-            margin-left: 16px;
-          `}
-        >
-          {showChildren &&
-            data.children?.map(
-              (child) =>
-                (child.matchSearch === MatchSearch.match ||
-                  child.matchSearch === undefined ||
-                  child.matchSearch === MatchSearch.childMatch) && (
-                  <TreeNode key={child.id} data={child} onToggleNode={onToggleNode} onSelectNode={onSelectNode} />
-                )
-            )}
-        </ul>
-      )}
-    </li>
-  )
-}
-
-enum MatchSearch {
-  match,
-  notMatch,
-  childMatch,
-}
-
-type TreeNodeData = {
-  id: string
-  name: string
-  type?: string
-  parent?: TreeNodeData
-  children?: TreeNodeData[]
-  // ui state
-  showChildren?: boolean
-  selected?: boolean
-  matchSearch?: MatchSearch
-}
-
 function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
-  // splits each row into items 
+  // splits each row into items
   const table = rows.map((row) =>
     row.split(',').map((column) => {
       const parts = column.split(':')
-      // default we suppose id,id,id,... format 
+      // default we suppose id,id,id,... format
       const item: TreeNodeData = {
         id: parts[0],
         name: parts[0],
       }
-      // let's check if we have id:name,id:name,id:name,... format 
+      // let's check if we have id:name,id:name,id:name,... format
       if (parts.length > 1) {
         item.name = parts[1]
       }
-      // let's check if we have id:name:type,id:name:type,id:name:type,... format 
+      // let's check if we have id:name:type,id:name:type,id:name:type,... format
       if (parts.length > 2) {
         item.type = parts[2]
       }
@@ -426,7 +334,7 @@ function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
         items = parent.children
         item.parent = parent
       }
-      if (levelIndex < expansionLevel){
+      if (levelIndex < expansionLevel) {
         item.showChildren = true
       }
       if (items.findIndex((i) => i.id === item.id) < 0) {

@@ -1,0 +1,42 @@
+@keyframes expandAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes collapseAnimation {
+  from {
+    transform: rotate(90deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana class names. */
+.tpp-expand-shape {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tpp-expand-shape--triangle {
+  stroke-linejoin: round;
+  fill: #8f9ba7;
+  stroke: #8f9ba7;
+  transform-origin: 50% 50%;
+  animation-duration: 0.3s;
+}
+
+.tpp-expand-shape--triangle.expanded {
+  animation-name: expandAnimation;
+  transform: rotate(90deg);
+}
+
+.tpp-expand-shape--triangle.collapsed {
+  animation-name: collapseAnimation;
+  transform: rotate(0deg);
+}
