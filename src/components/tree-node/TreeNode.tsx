@@ -4,6 +4,7 @@ import { MatchSearch } from 'commons/enums/MatchSearch'
 import { TreeNodeData } from 'commons/types/TreeNodeData'
 import ExpandShape from 'components/expand-shape/ExpandShape'
 import React from 'react'
+import BoxSvg from 'img/box.svg'
 import './style.css'
 
 type TreeNodeProps = {
@@ -45,6 +46,8 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
           value={data.selected}
           onChange={() => onSelectNode(data)}
         />
+        {/* This is a placeholder for tree node image */}
+        <img src={BoxSvg} alt={data.name} className="tpp--tree-node--icon"/>
         <Tooltip content={`id: ${data.id}, name: ${data.name}, type: ${data.type}`}>
           <span
             className={cx(
