@@ -8,10 +8,10 @@ import { useDeepCompareMemoize } from 'use-deep-compare-effect'
 import * as Handlebars from 'handlebars'
 import { TreeNodeData } from 'commons/types/TreeNodeData'
 import { MatchSearch } from 'commons/enums/MatchSearch'
-import GearSvg from 'img/gear.svg'
 import Toolbar from './toolbar/Toolbar'
 import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
 import TreeView from './tree-view/TreeView'
+import SettingsPopup from './settings-popup/SettingsPopup'
 
 // This is temporary, read its comments for more details.
 import './temporary-style.css'
@@ -276,9 +276,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
             margin-bottom: 8px;
           `}
         />
-        <Button className="tpp--button image" size="sm" onClick={() => handleToggleFold(true)}>
-          <img src={GearSvg} alt="Tree Settings" />
-        </Button>
+        <SettingsPopup />
       </Toolbar>
       <Toolbar>
         <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(true)}>
