@@ -94,7 +94,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
           <img src={GearSvg} alt="Tree Settings" />
         </Button>
       }
-      position="bottom right"
+      position="bottom left"
     >
       <div className="tpp-settings-popup--popup-container">
         {Utils.getGeneralSettingOptions(typeOptionIndex, companyOptionIndex).map((optionItem, index) =>
