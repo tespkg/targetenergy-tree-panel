@@ -1,0 +1,8 @@
+/* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana class names. */
+.tpp-fancy-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  flex-direction: row;
+}
