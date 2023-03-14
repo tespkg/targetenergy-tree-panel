@@ -1,0 +1,36 @@
+/* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana class names. */
+.tpp-settings-popup--popup-container {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  width: 200px;
+  background-color: #ffffff;
+  padding: 20px;
+  box-shadow: rgb(24 26 27 / 20%) -4px 4px 5px 2px;
+  border-radius: 5px;
+}
+
+.tpp-settings-popup--popup-container > .tpp-horizontal-separator {
+  margin: 8px 0px;
+}
+
+.tpp-settings-popup--draggable-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.tpp-settings-popup--draggable-area {
+  width: 16px;
+  height: 16px;
+}
+
+.tpp-settings-popup--draggable-content {
+  flex-grow: 1;
+}
+
+.tpp-settings-popup--unmovable-container {
+  padding-left: 24px;
+}
