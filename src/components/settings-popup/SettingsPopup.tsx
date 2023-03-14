@@ -9,6 +9,7 @@ import HorizontalSeparator from 'components/horizontal-separator/HorizontalSepar
 import { OptionData } from 'commons/types/OptionData'
 import DraggableSvg from 'img/draggable.svg'
 import './style.css'
+import { cx } from '@emotion/css'
 
 type SettingsPopupProps = {}
 
@@ -99,7 +100,10 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
         {Utils.getGeneralSettingOptions(typeOptionIndex, companyOptionIndex).map((optionItem, index) =>
           optionItem.isDraggable ? (
             <div
-              className="tpp-settings-popup--draggable-container"
+              className={cx(
+                'tpp-settings-popup--draggable-container',
+                Utils.addDraggedClassNameIfOptionDragged(dragItem, optionItem)
+              )}
               key={optionItem.id}
               onDragStart={(e) => onDragStart(e, optionItem)}
               onDragEnter={(e) => onDragEnter(e, index)}
@@ -113,7 +117,10 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
             </div>
           ) : (
             <div
-              className="tpp-settings-popup--unmovable-container"
+              className={cx(
+                'tpp-settings-popup--unmovable-container',
+                Utils.addDraggedClassNameIfOptionDragged(dragItem, optionItem)
+              )}
               key={optionItem.id}
               onDragEnter={(e) => onDragEnter(e, index)}
               onDragEnd={(e) => onDrop(e)}
@@ -124,7 +131,13 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
         )}
         <HorizontalSeparator />
         {Utils.getDetailSettingOptions().map((optionItem) => (
-          <div className="tpp-settings-popup--unmovable-container" key={optionItem.id}>
+          <div
+            className={cx(
+              'tpp-settings-popup--unmovable-container',
+              Utils.addDraggedClassNameIfOptionDragged(dragItem, optionItem)
+            )}
+            key={optionItem.id}
+          >
             {createFancyCheckbox(optionItem, onCheckboxChange)}
           </div>
         ))}
@@ -135,8 +148,6 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
 
 export default SettingsPopup
 
-function createFancyCheckbox(optionItem: OptionData, onCheckboxChange: (optionId: string) => void) {
-  return (
-    <FancyCheckbox title={optionItem.label} defaultChecked={true} onChange={() => onCheckboxChange(optionItem.id)} />
-  )
-}
+const createFancyCheckbox = (optionItem: OptionData, onCheckboxChange: (optionId: string) => void) => (
+  <FancyCheckbox title={optionItem.label} defaultChecked={true} onChange={() => onCheckboxChange(optionItem.id)} />
+)

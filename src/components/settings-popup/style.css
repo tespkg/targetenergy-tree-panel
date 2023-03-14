@@ -34,3 +34,8 @@
 .tpp-settings-popup--unmovable-container {
   padding-left: 24px;
 }
+
+.tpp-settings-popup--draggable-container.dragged,
+.tpp-settings-popup--unmovable-container.dragged {
+  opacity: 0.5;
+}

@@ -1,3 +1,4 @@
+import { OptionData } from 'commons/types/OptionData'
 import { COMPANY_OPTION, CONTINENT_OPTION, COUNTRY_OPTION, DETAIL_SETTING_OPTIONS, TYPE_OPTION } from './constants'
 
 export const getGeneralSettingOptions = (typeIndex: number, companyIndex: number) => {
@@ -45,3 +46,13 @@ export const getGeneralSettingOptions = (typeIndex: number, companyIndex: number
 }
 
 export const getDetailSettingOptions = () => DETAIL_SETTING_OPTIONS
+
+export const addDraggedClassNameIfOptionDragged = (
+  dragItem: React.MutableRefObject<OptionData | null | undefined>,
+  optionItem: OptionData
+) => (isOptionDragged(dragItem, optionItem) ? 'dragged' : '')
+
+export const isOptionDragged = (
+  dragItem: React.MutableRefObject<OptionData | null | undefined>,
+  optionItem: OptionData
+) => dragItem.current?.id === optionItem.id
