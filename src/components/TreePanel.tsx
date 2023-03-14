@@ -1,6 +1,5 @@
 import { css, cx } from '@emotion/css'
 import { PanelProps } from '@grafana/data'
-import { locationService, getTemplateSrv } from '@grafana/runtime'
 import { Alert, Button, Checkbox, Input, useStyles2 } from '@grafana/ui'
 import * as React from 'react'
 import { TreeOptions } from 'types'
@@ -12,6 +11,7 @@ import Toolbar from './toolbar/Toolbar'
 import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
 import TreeView from './tree-view/TreeView'
 import SettingsPopup from './settings-popup/SettingsPopup'
+import { getGrafanaVariable, setGrafanaVariable } from 'commons/utils/grafana-variable-utils'
 
 // This is temporary, read its comments for more details.
 import './temporary-style.css'
@@ -47,9 +47,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     formatTemplate = options.formatQuery
   }
 
-  const hasVar = getTemplateSrv()
-    .getVariables()
-    .find((v) => v.name === variableName)
+  const hasVar = getGrafanaVariable(variableName)
   let variableConfigError: React.ReactNode
   if (!hasVar || hasVar.type !== 'textbox') {
     variableConfigError = (
@@ -245,7 +243,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       if (options.debug) {
         console.log(`setting variable ${variableName}`, query)
       }
-      locationService.partial({ ['var-' + variableName]: query })
+      setGrafanaVariable(variableName, query)
     }
     // this should be needed, but in production build, the locationService.partial didn't trigger an re-render
     forceRender({})
