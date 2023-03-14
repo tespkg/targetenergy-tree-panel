@@ -8,8 +8,10 @@ import FancyCheckbox from 'components/fancy-checkbox/FancyCheckbox'
 import HorizontalSeparator from 'components/horizontal-separator/HorizontalSeparator'
 import { OptionData } from 'commons/types/OptionData'
 import DraggableSvg from 'img/draggable.svg'
-import './style.css'
 import { cx } from '@emotion/css'
+import * as GrafanaVariableUtils from 'commons/utils/grafana-variable-utils'
+import * as DatabaseConstants from 'commons/constants/database-constants'
+import './style.css'
 
 type SettingsPopupProps = {}
 
@@ -17,31 +19,27 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
   const dragItem = React.useRef<OptionData | null>()
   const dragOverItem = React.useRef<number | null>()
 
-  const [isContinentOptionChecked, setContinentOptionChecked] = React.useState(
-    Constants.CONTINENT_OPTION_DEFAULT_CHECKED_VALUE
-  )
-  const [isCountryOptionChecked, setCountryOptionChecked] = React.useState(
-    Constants.COUNTRY_OPTION_DEFAULT_CHECKED_VALUE
-  )
-  const [isTypeOptionChecked, setTypeOptionChecked] = React.useState(Constants.TYPE_OPTION_DEFAULT_CHECKED_VALUE)
-  const [isCompanyOptionChecked, setCompanyOptionChecked] = React.useState(
-    Constants.COMPANY_OPTION_DEFAULT_CHECKED_VALUE
-  )
-  const [isBlockOptionChecked, setBlockOptionChecked] = React.useState(Constants.BLOCK_OPTION_DEFAULT_CHECKED_VALUE)
-  const [isFieldOptionChecked, setFieldOptionChecked] = React.useState(Constants.FIELD_OPTION_DEFAULT_CHECKED_VALUE)
-  const [isWellOptionChecked, setWellOptionChecked] = React.useState(Constants.WELL_OPTION_DEFAULT_CHECKED_VALUE)
+  const [optionChecks, setOptionChecks] = React.useState<OptionChecksData>({
+    continentChecked: Constants.CONTINENT_OPTION_DEFAULT_CHECKED_VALUE,
+    countryChecked: Constants.COUNTRY_OPTION_DEFAULT_CHECKED_VALUE,
+    typeChecked: Constants.TYPE_OPTION_DEFAULT_CHECKED_VALUE,
+    companyChecked: Constants.COMPANY_OPTION_DEFAULT_CHECKED_VALUE,
+    regionChecked: Constants.REGION_OPTION_DEFAULT_CHECKED_VALUE,
+    blockChecked: Constants.BLOCK_OPTION_DEFAULT_CHECKED_VALUE,
+    productionStationChecked: Constants.PRODUCTION_STATION_OPTION_DEFAULT_CHECKED_VALUE,
+    fieldChecked: Constants.FIELD_OPTION_DEFAULT_CHECKED_VALUE,
+    reservoirChecked: Constants.RESERVOIR_OPTION_DEFAULT_CHECKED_VALUE,
+    wellChecked: Constants.WELL_OPTION_DEFAULT_CHECKED_VALUE,
+    completionChecked: Constants.COMPLETION_OPTION_DEFAULT_CHECKED_VALUE,
+  })
   const [typeOptionIndex, setTypeOptionIndex] = React.useState(Constants.TYPE_OPTION_DEFAULT_CHECKED_INDEX)
   const [companyOptionIndex, setCompanyOptionIndex] = React.useState(Constants.COMPANY_OPTION_DEFAULT_CHECKED_INDEX)
 
-  console.debug(
-    isContinentOptionChecked,
-    isCountryOptionChecked,
-    isTypeOptionChecked,
-    isCompanyOptionChecked,
-    isBlockOptionChecked,
-    isFieldOptionChecked,
-    isWellOptionChecked
+  const firstFourLevelsSortingAsJson = React.useMemo(
+    () => GrafanaVariableUtils.getFirstFourLevelsSortingVariableAsJson(),
+    []
   )
+  const treeFiltersAsJson = React.useMemo(() => GrafanaVariableUtils.getTreeFiltersVariableAsJson(), [])
 
   const onDragStart = (event: React.DragEvent<HTMLElement>, optionItem: OptionData) => {
     dragItem.current = optionItem
@@ -64,28 +62,83 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
   const onCheckboxChange = React.useCallback((optionId: string) => {
     switch (optionId) {
       case Constants.CONTINENT_OPTION_ID:
-        setContinentOptionChecked((prev) => !prev)
+        setOptionChecks((prev) => {
+          return { ...prev, continentChecked: !prev.continentChecked }
+        })
         break
       case Constants.COUNTRY_OPTION_ID:
-        setCountryOptionChecked((prev) => !prev)
+        setOptionChecks((prev) => {
+          return { ...prev, countryChecked: !prev.countryChecked }
+        })
         break
       case Constants.TYPE_OPTION_ID:
-        setTypeOptionChecked((prev) => !prev)
+        setOptionChecks((prev) => {
+          return { ...prev, typeChecked: !prev.typeChecked }
+        })
         break
       case Constants.COMPANY_OPTION_ID:
-        setCompanyOptionChecked((prev) => !prev)
+        setOptionChecks((prev) => {
+          return { ...prev, companyChecked: !prev.companyChecked }
+        })
         break
       case Constants.BLOCK_OPTION_ID:
-        setBlockOptionChecked((prev) => !prev)
+        setOptionChecks((prev) => {
+          return { ...prev, blockChecked: !prev.blockChecked }
+        })
         break
       case Constants.FIELD_OPTION_ID:
-        setFieldOptionChecked((prev) => !prev)
+        setOptionChecks((prev) => {
+          return { ...prev, fieldChecked: !prev.fieldChecked }
+        })
         break
       case Constants.WELL_OPTION_ID:
-        setWellOptionChecked((prev) => !prev)
+        setOptionChecks((prev) => {
+          return { ...prev, wellChecked: !prev.wellChecked }
+        })
         break
     }
   }, [])
+
+  const onPopupClose = React.useCallback(
+    (event?: React.SyntheticEvent<Element, Event> | MouseEvent | KeyboardEvent | TouchEvent | undefined) => {
+      const optionIndices = Utils.generateOptionIndices(typeOptionIndex, companyOptionIndex)
+      GrafanaVariableUtils.setFirstFourLevelsSortingVariable(
+        GrafanaVariableUtils.generateFirstFourLevelsSortingVariableValue(optionIndices)
+      )
+      GrafanaVariableUtils.setTreeFiltersVariable(
+        GrafanaVariableUtils.generateTreeFiltersVariableValue(optionIndices, optionChecks)
+      )
+    },
+    [typeOptionIndex, companyOptionIndex, optionChecks]
+  )
+
+  React.useEffect(() => {
+    // The DB is: Company | Operated(Type) | Continent | Country
+    const [, , typeIndex, companyIndex] = Utils.getOptionIndices(firstFourLevelsSortingAsJson)
+    setTypeOptionIndex(typeIndex)
+    setCompanyOptionIndex(companyIndex)
+  }, [firstFourLevelsSortingAsJson])
+
+  React.useEffect(() => {
+    const [continentIndex, countryIndex, typeIndex, companyIndex] = Utils.getOptionIndices(firstFourLevelsSortingAsJson)
+    // Convert it to boolean[]
+    const toBoolean = (v: number) => v === 1
+    const treeFilters: boolean[] = JSON.parse(treeFiltersAsJson).map(toBoolean)
+    setOptionChecks((prev) => {
+      return {
+        ...prev,
+        // Set general options checked
+        continentChecked: treeFilters[continentIndex],
+        countryChecked: treeFilters[countryIndex],
+        typeChecked: treeFilters[typeIndex],
+        companyChecked: treeFilters[companyIndex],
+        // Set detail options checked
+        blockChecked: treeFilters[DatabaseConstants.BLOCK_DATABASE_INDEX],
+        fieldChecked: treeFilters[DatabaseConstants.FIELD_DATABASE_INDEX],
+        wellChecked: treeFilters[DatabaseConstants.WELL_DATABASE_INDEX],
+      }
+    })
+  }, [firstFourLevelsSortingAsJson, treeFiltersAsJson])
 
   return (
     <Popup
@@ -95,6 +148,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
         </Button>
       }
       position="bottom left"
+      onClose={onPopupClose}
     >
       <div className="tpp-settings-popup--popup-container">
         {Utils.getGeneralSettingOptions(typeOptionIndex, companyOptionIndex).map((optionItem, index) =>
