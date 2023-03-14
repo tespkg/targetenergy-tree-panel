@@ -1,5 +1,6 @@
 import { OptionData } from 'commons/types/OptionData'
 import { COMPANY_OPTION, CONTINENT_OPTION, COUNTRY_OPTION, DETAIL_SETTING_OPTIONS, TYPE_OPTION } from './constants'
+import * as DatabaseConstants from 'commons/constants/database-constants'
 
 export const getGeneralSettingOptions = (typeIndex: number, companyIndex: number) => {
   if (typeIndex !== -1 && companyIndex !== -1) {
@@ -56,3 +57,47 @@ export const isOptionDragged = (
   dragItem: React.MutableRefObject<OptionData | null | undefined>,
   optionItem: OptionData
 ) => dragItem.current?.id === optionItem.id
+
+const findFirstFourLevelsSortingVariableIndex = (firstFourLevelsSorting: number[], databaseLevel: number) =>
+  firstFourLevelsSorting.findIndex((v) => v === databaseLevel)
+
+export const getOptionIndices = (firstFourLevelsSortingAsJson: string): [number, number, number, number] => {
+  const firstFourLevelsSorting: number[] = JSON.parse(firstFourLevelsSortingAsJson)
+  const continentIndex = findFirstFourLevelsSortingVariableIndex(
+    firstFourLevelsSorting,
+    DatabaseConstants.CONTINENT_DATABASE_LEVEL
+  )
+  const countryIndex = findFirstFourLevelsSortingVariableIndex(
+    firstFourLevelsSorting,
+    DatabaseConstants.COUNTRY_DATABASE_LEVEL
+  )
+  const typeIndex = findFirstFourLevelsSortingVariableIndex(
+    firstFourLevelsSorting,
+    DatabaseConstants.TYPE_DATABASE_LEVEL
+  )
+  const companyIndex = findFirstFourLevelsSortingVariableIndex(
+    firstFourLevelsSorting,
+    DatabaseConstants.COMPANY_DATABASE_LEVEL
+  )
+  return [continentIndex, countryIndex, typeIndex, companyIndex]
+}
+
+export const generateOptionIndices = (typeIndex: number, companyIndex: number): OptionIndicesData => {
+  let levels = new Array(4).fill(false)
+  levels[typeIndex] = true
+  levels[companyIndex] = true
+  let continentIndex = -1
+  let countryIndex = -1
+  for (let i = 0; i < levels.length; i++) {
+    if (levels[i] === 0) {
+      // It's not determined yet
+      if (continentIndex === -1) {
+        continentIndex = i
+      } else {
+        countryIndex = i
+        break // Done
+      }
+    }
+  }
+  return { continentIndex, countryIndex, typeIndex, companyIndex }
+}
