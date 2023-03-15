@@ -11,6 +11,7 @@ import DraggableSvg from 'img/draggable.svg'
 import { cx } from '@emotion/css'
 import * as GrafanaVariableUtils from 'commons/utils/grafana-variable-utils'
 import * as DatabaseConstants from 'commons/constants/database-constants'
+import { getTemplateSrv } from '@grafana/runtime'
 import './style.css'
 
 type SettingsPopupProps = {}
@@ -35,11 +36,19 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
   const [typeOptionIndex, setTypeOptionIndex] = React.useState(Constants.TYPE_OPTION_DEFAULT_CHECKED_INDEX)
   const [companyOptionIndex, setCompanyOptionIndex] = React.useState(Constants.COMPANY_OPTION_DEFAULT_CHECKED_INDEX)
 
-  const firstFourLevelsSortingAsJson = React.useMemo(
-    () => GrafanaVariableUtils.getFirstFourLevelsSortingVariableAsJson(),
-    []
+  const grafanaVariables = getTemplateSrv().getVariables()
+
+  const firstFourLevelsSortingValue = React.useMemo(
+    () => GrafanaVariableUtils.getFirstFourLevelsSortingVariableValue(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(grafanaVariables)]
   )
-  const treeFiltersAsJson = React.useMemo(() => GrafanaVariableUtils.getTreeFiltersVariableAsJson(), [])
+
+  const treeFiltersValue = React.useMemo(
+    () => GrafanaVariableUtils.getTreeFiltersVariableValue(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(grafanaVariables)]
+  )
 
   const onDragStart = (event: React.DragEvent<HTMLElement>, optionItem: OptionData) => {
     dragItem.current = optionItem
@@ -102,43 +111,42 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
   const onPopupClose = React.useCallback(
     (event?: React.SyntheticEvent<Element, Event> | MouseEvent | KeyboardEvent | TouchEvent | undefined) => {
       const optionIndices = Utils.generateOptionIndices(typeOptionIndex, companyOptionIndex)
-      GrafanaVariableUtils.setFirstFourLevelsSortingVariable(
+      const newFirstFourLevelsSortingValue =
         GrafanaVariableUtils.generateFirstFourLevelsSortingVariableValue(optionIndices)
-      )
-      GrafanaVariableUtils.setTreeFiltersVariable(
-        GrafanaVariableUtils.generateTreeFiltersVariableValue(optionIndices, optionChecks)
-      )
+      GrafanaVariableUtils.setFirstFourLevelsSortingVariable(newFirstFourLevelsSortingValue)
+      const newTreeFiltersValue = GrafanaVariableUtils.generateTreeFiltersVariableValue(optionIndices, optionChecks)
+      GrafanaVariableUtils.setTreeFiltersVariable(newTreeFiltersValue)
     },
     [typeOptionIndex, companyOptionIndex, optionChecks]
   )
 
   React.useEffect(() => {
     // The DB is: Company | Operated(Type) | Continent | Country
-    const [, , typeIndex, companyIndex] = Utils.getOptionIndices(firstFourLevelsSortingAsJson)
-    setTypeOptionIndex(typeIndex)
-    setCompanyOptionIndex(companyIndex)
-  }, [firstFourLevelsSortingAsJson])
+    const optionIndices = Utils.getOptionIndices(firstFourLevelsSortingValue)
+    setTypeOptionIndex(optionIndices.typeIndex)
+    setCompanyOptionIndex(optionIndices.companyIndex)
+  }, [firstFourLevelsSortingValue])
 
   React.useEffect(() => {
-    const [continentIndex, countryIndex, typeIndex, companyIndex] = Utils.getOptionIndices(firstFourLevelsSortingAsJson)
+    const optionIndices = Utils.getOptionIndices(firstFourLevelsSortingValue)
     // Convert it to boolean[]
     const toBoolean = (v: number) => v === 1
-    const treeFilters: boolean[] = JSON.parse(treeFiltersAsJson).map(toBoolean)
+    const treeFilters: boolean[] = treeFiltersValue.map(toBoolean)
     setOptionChecks((prev) => {
       return {
         ...prev,
         // Set general options checked
-        continentChecked: treeFilters[continentIndex],
-        countryChecked: treeFilters[countryIndex],
-        typeChecked: treeFilters[typeIndex],
-        companyChecked: treeFilters[companyIndex],
+        continentChecked: treeFilters[optionIndices.continentIndex],
+        countryChecked: treeFilters[optionIndices.countryIndex],
+        typeChecked: treeFilters[optionIndices.typeIndex],
+        companyChecked: treeFilters[optionIndices.companyIndex],
         // Set detail options checked
         blockChecked: treeFilters[DatabaseConstants.BLOCK_DATABASE_INDEX],
         fieldChecked: treeFilters[DatabaseConstants.FIELD_DATABASE_INDEX],
         wellChecked: treeFilters[DatabaseConstants.WELL_DATABASE_INDEX],
       }
     })
-  }, [firstFourLevelsSortingAsJson, treeFiltersAsJson])
+  }, [firstFourLevelsSortingValue, treeFiltersValue])
 
   return (
     <Popup
@@ -151,8 +159,9 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
       onClose={onPopupClose}
     >
       <div className="tpp-settings-popup--popup-container">
-        {Utils.getGeneralSettingOptions(typeOptionIndex, companyOptionIndex).map((optionItem, index) =>
-          optionItem.isDraggable ? (
+        {Utils.getGeneralSettingOptions(typeOptionIndex, companyOptionIndex).map((optionItem, index) => {
+          const checked = getCheckForOptionId(optionChecks, optionItem.id)
+          return optionItem.isDraggable ? (
             <div
               className={cx(
                 'tpp-settings-popup--draggable-container',
@@ -166,7 +175,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
             >
               <img src={DraggableSvg} alt="Draggable Area" className="tpp-settings-popup--draggable-area" />
               <div className="tpp-settings-popup--draggable-content">
-                {createFancyCheckbox(optionItem, onCheckboxChange)}
+                {createFancyCheckbox(optionItem, checked, onCheckboxChange)}
               </div>
             </div>
           ) : (
@@ -179,10 +188,10 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
               onDragEnter={(e) => onDragEnter(e, index)}
               onDragEnd={(e) => onDrop(e)}
             >
-              {createFancyCheckbox(optionItem, onCheckboxChange)}
+              {createFancyCheckbox(optionItem, checked, onCheckboxChange)}
             </div>
           )
-        )}
+        })}
         <HorizontalSeparator />
         {Utils.getDetailSettingOptions().map((optionItem) => (
           <div
@@ -192,7 +201,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
             )}
             key={optionItem.id}
           >
-            {createFancyCheckbox(optionItem, onCheckboxChange)}
+            {createFancyCheckbox(optionItem, getCheckForOptionId(optionChecks, optionItem.id), onCheckboxChange)}
           </div>
         ))}
       </div>
@@ -202,6 +211,30 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
 
 export default SettingsPopup
 
-const createFancyCheckbox = (optionItem: OptionData, onCheckboxChange: (optionId: string) => void) => (
-  <FancyCheckbox title={optionItem.label} defaultChecked={true} onChange={() => onCheckboxChange(optionItem.id)} />
+const getCheckForOptionId = (optionChecks: OptionChecksData, optionId: string): boolean => {
+  switch (optionId) {
+    case Constants.CONTINENT_OPTION_ID:
+      return optionChecks.continentChecked
+    case Constants.COUNTRY_OPTION_ID:
+      return optionChecks.countryChecked
+    case Constants.TYPE_OPTION_ID:
+      return optionChecks.typeChecked
+    case Constants.COMPANY_OPTION_ID:
+      return optionChecks.companyChecked
+    case Constants.BLOCK_OPTION_ID:
+      return optionChecks.blockChecked
+    case Constants.FIELD_OPTION_ID:
+      return optionChecks.fieldChecked
+    case Constants.WELL_OPTION_ID:
+      return optionChecks.wellChecked
+  }
+  return false
+}
+
+const createFancyCheckbox = (
+  optionItem: OptionData,
+  checked: boolean,
+  onCheckboxChange: (optionId: string) => void
+) => (
+  <FancyCheckbox title={optionItem.label} defaultChecked={checked} onChange={() => onCheckboxChange(optionItem.id)} />
 )
