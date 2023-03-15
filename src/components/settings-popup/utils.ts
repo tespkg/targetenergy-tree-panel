@@ -61,8 +61,7 @@ export const isOptionDragged = (
 const findFirstFourLevelsSortingVariableIndex = (firstFourLevelsSorting: number[], databaseLevel: number) =>
   firstFourLevelsSorting.findIndex((v) => v === databaseLevel)
 
-export const getOptionIndices = (firstFourLevelsSortingAsJson: string): [number, number, number, number] => {
-  const firstFourLevelsSorting: number[] = JSON.parse(firstFourLevelsSortingAsJson)
+export const getOptionIndices = (firstFourLevelsSorting: number[]): OptionIndicesData => {
   const continentIndex = findFirstFourLevelsSortingVariableIndex(
     firstFourLevelsSorting,
     DatabaseConstants.CONTINENT_DATABASE_LEVEL
@@ -79,7 +78,7 @@ export const getOptionIndices = (firstFourLevelsSortingAsJson: string): [number,
     firstFourLevelsSorting,
     DatabaseConstants.COMPANY_DATABASE_LEVEL
   )
-  return [continentIndex, countryIndex, typeIndex, companyIndex]
+  return { continentIndex, countryIndex, typeIndex, companyIndex }
 }
 
 export const generateOptionIndices = (typeIndex: number, companyIndex: number): OptionIndicesData => {
@@ -89,7 +88,7 @@ export const generateOptionIndices = (typeIndex: number, companyIndex: number): 
   let continentIndex = -1
   let countryIndex = -1
   for (let i = 0; i < levels.length; i++) {
-    if (levels[i] === 0) {
+    if (!levels[i]) {
       // It's not determined yet
       if (continentIndex === -1) {
         continentIndex = i
