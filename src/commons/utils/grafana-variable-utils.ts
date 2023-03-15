@@ -1,3 +1,4 @@
+import { VariableWithOptions } from '@grafana/data'
 import { getTemplateSrv, locationService } from '@grafana/runtime'
 import {
   BLOCK_DATABASE_INDEX,
@@ -15,17 +16,29 @@ import {
 import { FIRST_FOUR_LEVELS_SORTING_VARIABLE_NAME, TREE_FILTERS_VARIABLE_NAME } from './grafana-variable-constants'
 
 // Grafana Variable Functions
-const getGrafanaVariableAsJson = (variableName: string) => JSON.stringify(getGrafanaVariable(variableName))
-export const getGrafanaVariable = (variableName: string) =>
-  getTemplateSrv()
-    .getVariables()
-    .find((v) => v.name === variableName)
+export const getGrafanaVariable = (variableName: string) => {
+  const vars = getTemplateSrv().getVariables()
+  return vars.find((v) => v.name === variableName)
+}
+const getGrafanaVariableRawValue = (variableName: string) =>
+  (getGrafanaVariable(variableName) as VariableWithOptions)?.current.value
+const getGrafanaVariableAsNumberArray = (variableName: string) => {
+  const rawValue = getGrafanaVariableRawValue(variableName)
+  if (typeof rawValue === 'string') {
+    return JSON.parse(rawValue)
+  }
+  console.error(
+    `Variable '${variableName}' is not defined properly, actual = ${rawValue} (typeof ${typeof rawValue}), expected = (typeof string)`
+  )
+  return []
+}
 export const setGrafanaVariable = (variableName: string, value: string) =>
   locationService.partial({ [`var-${variableName}`]: value }, true)
 
 // Get/Set first four levels sorting variable
-export const getFirstFourLevelsSortingVariableAsJson = () =>
-  getGrafanaVariableAsJson(FIRST_FOUR_LEVELS_SORTING_VARIABLE_NAME)
+export const getFirstFourLevelsSortingVariableValue = (): number[] => {
+  return getGrafanaVariableAsNumberArray(FIRST_FOUR_LEVELS_SORTING_VARIABLE_NAME)
+}
 export const setFirstFourLevelsSortingVariable = (value: string) =>
   setGrafanaVariable(FIRST_FOUR_LEVELS_SORTING_VARIABLE_NAME, value)
 export const generateFirstFourLevelsSortingVariableValue = (optionIndices: OptionIndicesData): string => {
@@ -39,7 +52,7 @@ export const generateFirstFourLevelsSortingVariableValue = (optionIndices: Optio
 }
 
 // Get/Set tree filters variable
-export const getTreeFiltersVariableAsJson = () => getGrafanaVariableAsJson(TREE_FILTERS_VARIABLE_NAME)
+export const getTreeFiltersVariableValue = (): number[] => getGrafanaVariableAsNumberArray(TREE_FILTERS_VARIABLE_NAME)
 export const setTreeFiltersVariable = (value: string) => setGrafanaVariable(TREE_FILTERS_VARIABLE_NAME, value)
 export const generateTreeFiltersVariableValue = (
   optionIndices: OptionIndicesData,
