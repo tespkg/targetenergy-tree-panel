@@ -36,18 +36,18 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
   const [typeOptionIndex, setTypeOptionIndex] = React.useState(Constants.TYPE_OPTION_DEFAULT_CHECKED_INDEX)
   const [companyOptionIndex, setCompanyOptionIndex] = React.useState(Constants.COMPANY_OPTION_DEFAULT_CHECKED_INDEX)
 
-  const grafanaVariables = getTemplateSrv().getVariables()
+  const grafanaVariables = JSON.stringify(getTemplateSrv().getVariables())
 
   const firstFourLevelsSortingValue = React.useMemo(
     () => GrafanaVariableUtils.getFirstFourLevelsSortingVariableValue(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(grafanaVariables)]
+    [grafanaVariables]
   )
 
   const treeFiltersValue = React.useMemo(
     () => GrafanaVariableUtils.getTreeFiltersVariableValue(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(grafanaVariables)]
+    [grafanaVariables]
   )
 
   const onDragStart = (event: React.DragEvent<HTMLElement>, optionItem: OptionData) => {

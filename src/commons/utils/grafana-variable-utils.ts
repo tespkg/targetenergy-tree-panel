@@ -25,7 +25,7 @@ const getGrafanaVariableRawValue = (variableName: string) =>
 const getGrafanaVariableAsNumberArray = (variableName: string) => {
   const rawValue = getGrafanaVariableRawValue(variableName)
   if (typeof rawValue === 'string') {
-    return JSON.parse(rawValue)
+    return JSON.parse(`[${rawValue}]`)
   }
   console.error(
     `Variable '${variableName}' is not defined properly, actual = ${rawValue} (typeof ${typeof rawValue}), expected = (typeof string)`
@@ -48,7 +48,7 @@ export const generateFirstFourLevelsSortingVariableValue = (optionIndices: Optio
   levels[optionIndices.countryIndex] = COUNTRY_DATABASE_LEVEL
   levels[optionIndices.typeIndex] = TYPE_DATABASE_LEVEL
   levels[optionIndices.companyIndex] = COMPANY_DATABASE_LEVEL
-  return '[' + levels.toString() + ']'
+  return levels.join(',')
 }
 
 // Get/Set tree filters variable
@@ -73,5 +73,5 @@ export const generateTreeFiltersVariableValue = (
   filters[RESERVOIR_DATABASE_INDEX] = toInteger(optionChecks.reservoirChecked)
   filters[WELL_DATABASE_INDEX] = toInteger(optionChecks.wellChecked)
   filters[COMPLETION_DATABASE_INDEX] = toInteger(optionChecks.completionChecked)
-  return '[' + filters.toString() + ']'
+  return filters.toString()
 }
