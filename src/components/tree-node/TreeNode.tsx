@@ -32,7 +32,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
       >
         <ExpandShape
           className={css`
-            visibility: ${hasChildren ? 'visible' : 'hidden'};
+            visibility: ${hasChildren ? 'inherited' : 'hidden'};
             cursor: ${hasChildren ? 'pointer' : 'default'};
             margin-right: 10px;
           `}
@@ -47,7 +47,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
           onChange={() => onSelectNode(data)}
         />
         {/* This is a placeholder for tree node image */}
-        <img src={BoxSvg} alt={data.name} className="tpp--tree-node--icon"/>
+        <img src={BoxSvg} alt={data.name} className="tpp--tree-node--icon" />
         <Tooltip content={`id: ${data.id}, name: ${data.name}, type: ${data.type}`}>
           <span
             className={cx(
