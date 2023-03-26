@@ -11,10 +11,11 @@ import Toolbar from './toolbar/TreeToolbar'
 import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
 import TreeView from './tree-view/TreeView'
 import SettingsPopup from './settings-popup/SettingsPopup'
-import { getGrafanaVariable, setGrafanaVariable } from 'commons/utils/grafana-variable-utils'
+import { setGrafanaVariable } from 'commons/utils/grafana-variable-utils'
 
 // This is temporary, read its comments for more details.
 import './temporary-style.css'
+import GrafanaVariableAlert from 'commons/utils/GrafanaVariableAlert'
 
 let renderCount = 0
 
@@ -45,19 +46,6 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   let formatTemplate = defaultFormatTemplate
   if (options.formatQuery) {
     formatTemplate = options.formatQuery
-  }
-
-  const hasVar = getGrafanaVariable(variableName)
-  let variableConfigError: React.ReactNode
-  if (!hasVar || hasVar.type !== 'textbox') {
-    variableConfigError = (
-      <Alert title="Variable not configured properly" severity="error">
-        Please create a &quot;Text box&quot; variable with name `{variableName}`.
-        <br /> This plugin sets the variable when a node is selected.
-        <br /> If you have the variable already, make sure it has the same name with the &quot;Variable name&quot; in
-        the panel config.
-      </Alert>
-    )
   }
 
   const [showSelected, setShowSelected] = React.useState(false)
@@ -261,7 +249,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
         `
       )}
     >
-      {variableConfigError}
+      <GrafanaVariableAlert variableName={variableName} />
       {formatTplError}
       {dataError}
       <Toolbar>
