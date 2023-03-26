@@ -59,10 +59,25 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
   }
 
   const onDrop = (event: React.DragEvent<HTMLElement>) => {
+    const newOptionIndex = dragOverItem.current
     if (dragItem.current?.id === Constants.TYPE_OPTION_ID) {
-      setTypeOptionIndex(dragOverItem.current ?? Constants.TYPE_OPTION_DEFAULT_CHECKED_INDEX)
+      if (newOptionIndex === companyOptionIndex) {
+        if (typeOptionIndex < companyOptionIndex) {
+          setCompanyOptionIndex(newOptionIndex - 1)
+        } else {
+          setCompanyOptionIndex(newOptionIndex + 1)
+        }
+      }
+      setTypeOptionIndex(newOptionIndex ?? Constants.TYPE_OPTION_DEFAULT_CHECKED_INDEX)
     } else if (dragItem.current?.id === Constants.COMPANY_OPTION_ID) {
-      setCompanyOptionIndex(dragOverItem.current ?? Constants.COMPANY_OPTION_DEFAULT_CHECKED_INDEX)
+      if (newOptionIndex === typeOptionIndex) {
+        if (companyOptionIndex < typeOptionIndex) {
+          setTypeOptionIndex(newOptionIndex - 1)
+        } else {
+          setTypeOptionIndex(newOptionIndex + 1)
+        }
+      }
+      setCompanyOptionIndex(newOptionIndex ?? Constants.COMPANY_OPTION_DEFAULT_CHECKED_INDEX)
     }
     dragItem.current = null
     dragOverItem.current = null
