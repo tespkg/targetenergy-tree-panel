@@ -13,7 +13,6 @@ import {
   TYPE_DATABASE_LEVEL,
   WELL_DATABASE_INDEX,
 } from 'commons/constants/database-constants'
-import { FIRST_FOUR_LEVELS_SORTING_VARIABLE_NAME, TREE_FILTERS_VARIABLE_NAME } from './grafana-variable-constants'
 
 // Grafana Variable Functions
 export const getGrafanaVariable = (variableName: string) => {
@@ -22,7 +21,7 @@ export const getGrafanaVariable = (variableName: string) => {
 }
 const getGrafanaVariableRawValue = (variableName: string) =>
   (getGrafanaVariable(variableName) as VariableWithOptions)?.current.value
-const getGrafanaVariableAsNumberArray = (variableName: string) => {
+export const getGrafanaVariableAsNumberArray = (variableName: string) => {
   const rawValue = getGrafanaVariableRawValue(variableName)
   if (typeof rawValue === 'string') {
     return JSON.parse(`[${rawValue}]`)
@@ -36,11 +35,6 @@ export const setGrafanaVariable = (variableName: string, value: string) =>
   locationService.partial({ [`var-${variableName}`]: value }, true)
 
 // Get/Set first four levels sorting variable
-export const getFirstFourLevelsSortingVariableValue = (): number[] => {
-  return getGrafanaVariableAsNumberArray(FIRST_FOUR_LEVELS_SORTING_VARIABLE_NAME)
-}
-export const setFirstFourLevelsSortingVariable = (value: string) =>
-  setGrafanaVariable(FIRST_FOUR_LEVELS_SORTING_VARIABLE_NAME, value)
 export const generateFirstFourLevelsSortingVariableValue = (optionIndices: OptionIndicesData): string => {
   // The DB is: Company | Operated(Type) | Continent | Country
   let levels = new Array(4).fill(0)
@@ -52,8 +46,6 @@ export const generateFirstFourLevelsSortingVariableValue = (optionIndices: Optio
 }
 
 // Get/Set tree filters variable
-export const getTreeFiltersVariableValue = (): number[] => getGrafanaVariableAsNumberArray(TREE_FILTERS_VARIABLE_NAME)
-export const setTreeFiltersVariable = (value: string) => setGrafanaVariable(TREE_FILTERS_VARIABLE_NAME, value)
 export const generateTreeFiltersVariableValue = (
   optionIndices: OptionIndicesData,
   optionChecks: OptionChecksData

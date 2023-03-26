@@ -35,7 +35,8 @@ export const defaultFormatTemplate = `{{~#each .}}{{#if @index}} OR {{/if}}
 
 export const TreePanel: React.FC<Props> = ({ options, data, width, height, replaceVariables }) => {
   const styles = useStyles2(getStyles)
-  const { field, variableName, defaultExpansionLevel } = options
+  const { field, variableName, firstFourLevelsSortingVariableName, treeFiltersVariableName, defaultExpansionLevel } =
+    options
 
   const rows = data.series
     .map((d) => d.fields.find((f) => f.name === field))
@@ -250,6 +251,8 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       )}
     >
       <GrafanaVariableAlert variableName={variableName} />
+      <GrafanaVariableAlert variableName={firstFourLevelsSortingVariableName} />
+      <GrafanaVariableAlert variableName={treeFiltersVariableName} />
       {formatTplError}
       {dataError}
       <Toolbar>
@@ -262,7 +265,10 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
             margin-bottom: 8px;
           `}
         />
-        <SettingsPopup />
+        <SettingsPopup
+          firstFourLevelsSortingVariableName={firstFourLevelsSortingVariableName}
+          treeFiltersVariableName={treeFiltersVariableName}
+        />
       </Toolbar>
       <Toolbar>
         <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(true)}>

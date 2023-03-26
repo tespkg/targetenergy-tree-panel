@@ -14,9 +14,15 @@ import * as DatabaseConstants from 'commons/constants/database-constants'
 import { getTemplateSrv } from '@grafana/runtime'
 import './style.css'
 
-type SettingsPopupProps = {}
+type SettingsPopupProps = {
+  firstFourLevelsSortingVariableName: string
+  treeFiltersVariableName: string
+}
 
-const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
+const SettingsPopup: React.FC<SettingsPopupProps> = ({
+  firstFourLevelsSortingVariableName,
+  treeFiltersVariableName,
+}) => {
   const dragItem = React.useRef<OptionData | null>()
   const dragOverItem = React.useRef<number | null>()
 
@@ -39,13 +45,13 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
   const grafanaVariables = JSON.stringify(getTemplateSrv().getVariables())
 
   const firstFourLevelsSortingValue = React.useMemo(
-    () => GrafanaVariableUtils.getFirstFourLevelsSortingVariableValue(),
+    () => GrafanaVariableUtils.getGrafanaVariableAsNumberArray(firstFourLevelsSortingVariableName),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [grafanaVariables]
   )
 
   const treeFiltersValue = React.useMemo(
-    () => GrafanaVariableUtils.getTreeFiltersVariableValue(),
+    () => GrafanaVariableUtils.getGrafanaVariableAsNumberArray(treeFiltersVariableName),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [grafanaVariables]
   )
@@ -128,11 +134,11 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({}) => {
       const optionIndices = Utils.generateOptionIndices(typeOptionIndex, companyOptionIndex)
       const newFirstFourLevelsSortingValue =
         GrafanaVariableUtils.generateFirstFourLevelsSortingVariableValue(optionIndices)
-      GrafanaVariableUtils.setFirstFourLevelsSortingVariable(newFirstFourLevelsSortingValue)
+      GrafanaVariableUtils.setGrafanaVariable(firstFourLevelsSortingVariableName, newFirstFourLevelsSortingValue)
       const newTreeFiltersValue = GrafanaVariableUtils.generateTreeFiltersVariableValue(optionIndices, optionChecks)
-      GrafanaVariableUtils.setTreeFiltersVariable(newTreeFiltersValue)
+      GrafanaVariableUtils.setGrafanaVariable(treeFiltersVariableName, newTreeFiltersValue)
     },
-    [typeOptionIndex, companyOptionIndex, optionChecks]
+    [typeOptionIndex, companyOptionIndex, optionChecks, firstFourLevelsSortingVariableName, treeFiltersVariableName]
   )
 
   React.useEffect(() => {
