@@ -9,4 +9,9 @@
   font-size: 14px;
   font-weight: normal;
   margin-left: 5px;
+  white-space: nowrap;
+  max-width: 200px;
+  min-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
