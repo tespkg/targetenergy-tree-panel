@@ -15,7 +15,7 @@ export const getTreeNodeIcon = (data: TreeNodeData) => {
 
 const getTreeNodeSvgPath = (data: TreeNodeData): string | undefined => {
   if (data) {
-    switch (data.type) {
+    switch (data.type?.toLowerCase()) {
       case TREE_NODE_DATA_TYPES.COMPANY:
         return Constants.COMPANY_SVG_PATH
       case TREE_NODE_DATA_TYPES.OPERATED:
@@ -44,7 +44,7 @@ const getTreeNodeSvgPath = (data: TreeNodeData): string | undefined => {
 }
 
 const getOperatedTreeNodeIcon = (name: string): string | undefined => {
-  switch (name) {
+  switch (name?.toLowerCase()) {
     case OPERATION_TYPES.OPERATED:
       return Constants.OPERATED_SVG_PATH
     case OPERATION_TYPES.NOT_OPERATED:
@@ -65,7 +65,7 @@ const getCountryTreeNodeIcon = (countryName: string): string | undefined => {
 }
 
 const getContinentTreeNodeIcon = (continentName: string): string | undefined => {
-  switch (continentName.toLowerCase()) {
+  switch (continentName?.toLowerCase()) {
     case CONTINENTS.ASIA:
       return Constants.ASIA_SVG_PATH
     case CONTINENTS.AFRICA:
