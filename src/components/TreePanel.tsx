@@ -1,6 +1,6 @@
 import { css, cx } from '@emotion/css'
 import { PanelProps } from '@grafana/data'
-import { Alert, Button, Checkbox, Input, useStyles2 } from '@grafana/ui'
+import { Alert, Input, useStyles2 } from '@grafana/ui'
 import * as React from 'react'
 import { TreeOptions } from 'types'
 import { useDeepCompareMemoize } from 'use-deep-compare-effect'
@@ -265,22 +265,10 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
         <SettingsPopup
           firstFourLevelsSortingVariableName={firstFourLevelsSortingVariableName}
           treeFiltersVariableName={treeFiltersVariableName}
-        />
-      </Toolbar>
-      <Toolbar>
-        <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(true)}>
-          Expand All
-        </Button>
-        <Button className="tpp--button primary" size="sm" onClick={() => handleToggleFold(false)}>
-          Collapse All
-        </Button>
-      </Toolbar>
-      <Toolbar>
-        <Checkbox
-          className="tpp--checkbox"
-          value={showSelected}
-          label="Show Selected"
-          onChange={() => setShowSelected((prev) => !prev)}
+          onExpandAll={() => handleToggleFold(true)}
+          onCollapseAll={() => handleToggleFold(false)}
+          showSelected={showSelected}
+          onShowSelectedChange={() => setShowSelected((prev) => !prev)}
         />
       </Toolbar>
       <HorizontalSeparator />

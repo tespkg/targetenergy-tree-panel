@@ -67,5 +67,5 @@
 .tpp--tree-content {
   overflow: auto;
   width: 100%;
-  height: calc(100% - 160px);
+  height: calc(100% - 36px);
 }

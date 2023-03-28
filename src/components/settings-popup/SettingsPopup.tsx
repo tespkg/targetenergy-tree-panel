@@ -1,7 +1,7 @@
 import React from 'react'
 import GearSvg from 'img/gear.svg'
 import Popup from 'reactjs-popup'
-import { Button } from '@grafana/ui'
+import { Button, Checkbox } from '@grafana/ui'
 import * as Constants from './constants'
 import * as Utils from './utils'
 import FancyCheckbox from 'components/fancy-checkbox/FancyCheckbox'
@@ -17,11 +17,19 @@ import './style.css'
 type SettingsPopupProps = {
   firstFourLevelsSortingVariableName: string
   treeFiltersVariableName: string
+  onExpandAll: () => void
+  onCollapseAll: () => void
+  showSelected: boolean
+  onShowSelectedChange: () => void
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   firstFourLevelsSortingVariableName,
   treeFiltersVariableName,
+  onExpandAll,
+  onCollapseAll,
+  showSelected,
+  onShowSelectedChange,
 }) => {
   const dragItem = React.useRef<OptionData | null>()
   const dragOverItem = React.useRef<number | null>()
@@ -225,6 +233,21 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
             {createFancyCheckbox(optionItem, getCheckForOptionId(optionChecks, optionItem.id), onCheckboxChange)}
           </div>
         ))}
+        <HorizontalSeparator />
+        <div className='tpp-settings-popup--extra-options-container'>
+          <Checkbox
+            className="tpp--checkbox"
+            value={showSelected}
+            label="Show Selected"
+            onChange={onShowSelectedChange}
+          />
+          <Button className="tpp--button primary" size="sm" onClick={onExpandAll}>
+            Expand All
+          </Button>
+          <Button className="tpp--button primary" size="sm" onClick={onCollapseAll}>
+            Collapse All
+          </Button>
+        </div>
       </div>
     </Popup>
   )

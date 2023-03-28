@@ -39,3 +39,10 @@
 .tpp-settings-popup--unmovable-container.dragged {
   opacity: 0.5;
 }
+
+.tpp-settings-popup--extra-options-container {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
