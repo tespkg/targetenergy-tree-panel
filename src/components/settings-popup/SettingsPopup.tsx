@@ -184,7 +184,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
           <img src={GearSvg} alt="Tree Settings" />
         </Button>
       }
-      position="bottom left"
+      position="bottom right"
       onClose={onPopupClose}
     >
       <div className="tpp-settings-popup--popup-container">
@@ -234,7 +234,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
           </div>
         ))}
         <HorizontalSeparator />
-        <div className='tpp-settings-popup--extra-options-container'>
+        <div className="tpp-settings-popup--extra-options-container">
           <Checkbox
             className="tpp--checkbox"
             value={showSelected}
