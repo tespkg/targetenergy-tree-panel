@@ -1,11 +1,4 @@
-/* 
- * This is temporary for tree panel plugin till we figure it out 
- * how to apply lots of styles globally over Grafana and installed plugins. 
- * So we should keep this for now, after that just REMOVE this file and its reference. 
- */
-
 /* 'tpp' stands for 'Tree Panel Plugin' just to make it unique from Grafana class names. */
-
 /* Search */
 .tpp-toolbar > div[class$='-input-wrapper'] {
   width: unset;
@@ -69,4 +62,10 @@
   font-family: system-ui, sans-serif;
   font-size: 15px;
   font-weight: bold;
+}
+
+.tpp--tree-content {
+  overflow: auto;
+  width: 100%;
+  height: calc(100% - 160px);
 }

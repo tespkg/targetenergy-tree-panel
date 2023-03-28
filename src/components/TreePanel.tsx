@@ -12,10 +12,8 @@ import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
 import TreeView from './tree-view/TreeView'
 import SettingsPopup from './settings-popup/SettingsPopup'
 import { setGrafanaVariable } from 'commons/utils/grafana-variable-utils'
-
-// This is temporary, read its comments for more details.
-import './temporary-style.css'
 import GrafanaVariableAlert from 'commons/utils/GrafanaVariableAlert'
+import './style.css'
 
 let renderCount = 0
 
@@ -245,7 +243,6 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
         css`
           width: ${width}px;
           height: ${height}px;
-          overflow: auto;
           padding: 4px;
         `
       )}
