@@ -1,6 +1,7 @@
 import { OptionData } from 'commons/types/OptionData'
 import { COMPANY_OPTION, CONTINENT_OPTION, COUNTRY_OPTION, DETAIL_SETTING_OPTIONS, TYPE_OPTION } from './constants'
 import * as DatabaseConstants from 'commons/constants/database-constants'
+import { toZeroBased } from 'commons/utils/number-utils'
 
 export const getGeneralSettingOptions = (typeIndex: number, companyIndex: number) => {
   if (typeIndex !== -1 && companyIndex !== -1) {
@@ -58,26 +59,11 @@ export const isOptionDragged = (
   optionItem: OptionData
 ) => dragItem.current?.id === optionItem.id
 
-const findFirstFourLevelsSortingVariableIndex = (firstFourLevelsSorting: number[], databaseLevel: number) =>
-  firstFourLevelsSorting.findIndex((v) => v === databaseLevel)
-
 export const getOptionIndices = (firstFourLevelsSorting: number[]): OptionIndicesData => {
-  const continentIndex = findFirstFourLevelsSortingVariableIndex(
-    firstFourLevelsSorting,
-    DatabaseConstants.CONTINENT_DATABASE_LEVEL
-  )
-  const countryIndex = findFirstFourLevelsSortingVariableIndex(
-    firstFourLevelsSorting,
-    DatabaseConstants.COUNTRY_DATABASE_LEVEL
-  )
-  const typeIndex = findFirstFourLevelsSortingVariableIndex(
-    firstFourLevelsSorting,
-    DatabaseConstants.TYPE_DATABASE_LEVEL
-  )
-  const companyIndex = findFirstFourLevelsSortingVariableIndex(
-    firstFourLevelsSorting,
-    DatabaseConstants.COMPANY_DATABASE_LEVEL
-  )
+  const companyIndex = toZeroBased(firstFourLevelsSorting[DatabaseConstants.COMPANY_DATABASE_INDEX])
+  const typeIndex = toZeroBased(firstFourLevelsSorting[DatabaseConstants.TYPE_DATABASE_INDEX])
+  const continentIndex = toZeroBased(firstFourLevelsSorting[DatabaseConstants.CONTINENT_DATABASE_INDEX])
+  const countryIndex = toZeroBased(firstFourLevelsSorting[DatabaseConstants.COUNTRY_DATABASE_INDEX])
   return { continentIndex, countryIndex, typeIndex, companyIndex }
 }
 

@@ -2,17 +2,18 @@ import { VariableWithOptions } from '@grafana/data'
 import { getTemplateSrv, locationService } from '@grafana/runtime'
 import {
   BLOCK_DATABASE_INDEX,
-  COMPANY_DATABASE_LEVEL,
+  COMPANY_DATABASE_INDEX,
   COMPLETION_DATABASE_INDEX,
-  CONTINENT_DATABASE_LEVEL,
-  COUNTRY_DATABASE_LEVEL,
+  CONTINENT_DATABASE_INDEX,
+  COUNTRY_DATABASE_INDEX,
   FIELD_DATABASE_INDEX,
   PRODUCTION_STATION_DATABASE_INDEX,
   REGION_DATABASE_INDEX,
   RESERVOIR_DATABASE_INDEX,
-  TYPE_DATABASE_LEVEL,
+  TYPE_DATABASE_INDEX,
   WELL_DATABASE_INDEX,
 } from 'commons/constants/database-constants'
+import { toOneBased } from './number-utils'
 
 // Grafana Variable Functions
 export const getGrafanaVariable = (variableName: string) => {
@@ -38,10 +39,10 @@ export const setGrafanaVariable = (variableName: string, value: string) =>
 export const generateFirstFourLevelsSortingVariableValue = (optionIndices: OptionIndicesData): string => {
   // The DB is: Company | Operated(Type) | Continent | Country
   let levels = new Array(4).fill(0)
-  levels[optionIndices.continentIndex] = CONTINENT_DATABASE_LEVEL
-  levels[optionIndices.countryIndex] = COUNTRY_DATABASE_LEVEL
-  levels[optionIndices.typeIndex] = TYPE_DATABASE_LEVEL
-  levels[optionIndices.companyIndex] = COMPANY_DATABASE_LEVEL
+  levels[CONTINENT_DATABASE_INDEX] = toOneBased(optionIndices.continentIndex)
+  levels[COUNTRY_DATABASE_INDEX] = toOneBased(optionIndices.countryIndex)
+  levels[TYPE_DATABASE_INDEX] = toOneBased(optionIndices.typeIndex)
+  levels[COMPANY_DATABASE_INDEX] = toOneBased(optionIndices.companyIndex)
   return levels.join(',')
 }
 

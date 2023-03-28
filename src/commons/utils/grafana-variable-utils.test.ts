@@ -33,7 +33,7 @@ describe('grafana-variable-utils test', () => {
         typeIndex: 0,
         companyIndex: 3,
       })
-    ).toBe('2,3,4,1')
+    ).toBe('4,1,2,3')
   })
 })
 
