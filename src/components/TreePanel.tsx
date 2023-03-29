@@ -16,7 +16,7 @@ import './style.css'
 import Toolbar from './toolbar/TreeToolbar'
 import TreeView from './tree-view/TreeView'
 
-let renderCount = 0
+// let renderCount = 0
 
 let firstRenderCompleted = false
 
@@ -53,8 +53,10 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height }) => 
     formatTemplate = options.formatQuery
   }
 
+  // we probably want to use useSyncExternalStore as the following is considered an antipattern
+  // https://react.dev/learn/you-might-not-need-an-effect#subscribing-to-an-external-store
+  // only in react 18
   const [queryVar, setQueryVar] = React.useState(getSearchParam(variableName))
-
   React.useEffect(() => {
     const history = locationService.getHistory()
     const unlisten = history.listen(() => {
@@ -111,7 +113,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height }) => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  console.log(renderCount++)
+  // console.log(renderCount++)
 
   const handleToggleNode = (node: TreeNodeData) => {
     const nodeType = node.type!!
