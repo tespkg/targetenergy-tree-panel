@@ -72,7 +72,12 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
     dragOverItem.current = position
   }
 
+  const allowDrop = (event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault()
+  }
+
   const onDrop = (event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault()
     const newOptionIndex = dragOverItem.current
     if (dragItem.current?.id === Constants.TYPE_OPTION_ID) {
       if (newOptionIndex === companyOptionIndex) {
@@ -188,39 +193,41 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
       onClose={onPopupClose}
     >
       <div className="tpp-settings-popup--popup-container">
-        {Utils.getGeneralSettingOptions(typeOptionIndex, companyOptionIndex).map((optionItem, index) => {
-          const checked = getCheckForOptionId(optionChecks, optionItem.id)
-          return optionItem.isDraggable ? (
-            <div
-              className={cx(
-                'tpp-settings-popup--draggable-container',
-                Utils.addDraggedClassNameIfOptionDragged(dragItem, optionItem)
-              )}
-              key={optionItem.id}
-              onDragStart={(e) => onDragStart(e, optionItem)}
-              onDragEnter={(e) => onDragEnter(e, index)}
-              onDragEnd={(e) => onDrop(e)}
-              draggable={true}
-            >
-              <img src={DraggableSvg} alt="Draggable Area" className="tpp-settings-popup--draggable-area" />
-              <div className="tpp-settings-popup--draggable-content">
+        <div className="tpp-settings-popup--general-options-container" onDragOver={allowDrop}>
+          {Utils.getGeneralSettingOptions(typeOptionIndex, companyOptionIndex).map((optionItem, index) => {
+            const checked = getCheckForOptionId(optionChecks, optionItem.id)
+            return optionItem.isDraggable ? (
+              <div
+                className={cx(
+                  'tpp-settings-popup--draggable-container',
+                  Utils.addDraggedClassNameIfOptionDragged(dragItem, optionItem)
+                )}
+                key={optionItem.id}
+                onDragStart={(e) => onDragStart(e, optionItem)}
+                onDragEnter={(e) => onDragEnter(e, index)}
+                onDragEnd={onDrop}
+                draggable={true}
+              >
+                <img src={DraggableSvg} alt="Draggable Area" className="tpp-settings-popup--draggable-area" />
+                <div className="tpp-settings-popup--draggable-content">
+                  {createFancyCheckbox(optionItem, checked, onCheckboxChange)}
+                </div>
+              </div>
+            ) : (
+              <div
+                className={cx(
+                  'tpp-settings-popup--unmovable-container',
+                  Utils.addDraggedClassNameIfOptionDragged(dragItem, optionItem)
+                )}
+                key={optionItem.id}
+                onDragEnter={(e) => onDragEnter(e, index)}
+                onDragEnd={onDrop}
+              >
                 {createFancyCheckbox(optionItem, checked, onCheckboxChange)}
               </div>
-            </div>
-          ) : (
-            <div
-              className={cx(
-                'tpp-settings-popup--unmovable-container',
-                Utils.addDraggedClassNameIfOptionDragged(dragItem, optionItem)
-              )}
-              key={optionItem.id}
-              onDragEnter={(e) => onDragEnter(e, index)}
-              onDragEnd={(e) => onDrop(e)}
-            >
-              {createFancyCheckbox(optionItem, checked, onCheckboxChange)}
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
         <HorizontalSeparator />
         {Utils.getDetailSettingOptions().map((optionItem) => (
           <div

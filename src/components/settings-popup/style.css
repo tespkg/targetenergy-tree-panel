@@ -15,11 +15,19 @@
   margin: 8px 0px;
 }
 
+.tpp-settings-popup--general-options-container {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
 .tpp-settings-popup--draggable-container {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
 }
 
 .tpp-settings-popup--draggable-area {
