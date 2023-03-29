@@ -54,7 +54,9 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   }
 
   // So we can't use getSearchParam(variableName) in initial state as the url state is not yet set
-  const [queryVar, setQueryVar] = React.useState(() => replaceVariables(`$${variableName}`).trim())
+  const [queryVar, setQueryVar] = React.useState(
+    () => getSearchParam(variableName) || replaceVariables(`$${variableName}`).trim()
+  )
   // we probably want to use useSyncExternalStore as the following is considered an antipattern
   // https://react.dev/learn/you-might-not-need-an-effect#subscribing-to-an-external-store
   // only in react 18
@@ -328,10 +330,6 @@ function transformData(
 
       items.push(item)
 
-      if (j < defaultExpansionLevel) {
-        item.showChildren = true
-      }
-
       if (selected[item.type!!] && selected[item.type!!].includes(item.id)) {
         item.selected = true
         selectedNodes.push(item)
@@ -364,7 +362,12 @@ function transformData(
     // that'are selected to be visible, but if we use "compute everything when
     // state changes", there is no easy way to collapse all or just collapse
     // any node that has decendent selected
-    let walk = (node: TreeNodeData) => {
+    let walk = (node: TreeNodeData, lvl: number) => {
+      if (lvl < defaultExpansionLevel) {
+        // console.log(lvl, defaultExpansionLevel, node.name)
+        node.showChildren = true
+      }
+
       if (selectedNodes.map((n) => n.id).includes(node.id)) {
         let v = node
         while (v.parent) {
@@ -372,9 +375,9 @@ function transformData(
           v = v.parent
         }
       }
-      node.children?.forEach(walk)
+      node.children?.forEach((v) => walk(v, lvl + 1))
     }
-    walk({ id: '', name: '', type: '', children: rootItems })
+    walk({ id: '', name: '', type: '', children: rootItems }, 0)
   }
 
   // if show selected, hide other items
