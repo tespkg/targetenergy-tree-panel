@@ -37,7 +37,7 @@ export const defaultFormatTemplate = `{{~#each .}}{{#if @index}} OR {{/if}}
 
 const getSearchParam = (variableName: string) => locationService.getSearch().get(`var-${variableName}`) ?? ''
 
-export const TreePanel: React.FC<Props> = ({ options, data, width, height }) => {
+export const TreePanel: React.FC<Props> = ({ options, data, width, height, replaceVariables }) => {
   const styles = useStyles2(getStyles)
   const { field, variableName, firstFourLevelsSortingVariableName, treeFiltersVariableName, defaultExpansionLevel } =
     options
@@ -53,19 +53,23 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height }) => 
     formatTemplate = options.formatQuery
   }
 
+  // So we can't use getSearchParam(variableName) in initial state as the url state is not yet set
+  const [queryVar, setQueryVar] = React.useState(() => replaceVariables(`$${variableName}`).trim())
   // we probably want to use useSyncExternalStore as the following is considered an antipattern
   // https://react.dev/learn/you-might-not-need-an-effect#subscribing-to-an-external-store
   // only in react 18
-  const [queryVar, setQueryVar] = React.useState(getSearchParam(variableName))
   React.useEffect(() => {
     const history = locationService.getHistory()
     const unlisten = history.listen(() => {
       // const queryVar = replaceVariables(`$${variableName}`).trim()
       // console.log('queryVar', queryVar) // surprise! this lags behind the url state...
       setQueryVar(getSearchParam(variableName))
+      // const rv = replaceVariables(`$${variableName}`).trim()
+      // console.log('rv in history', rv)
+      // console.log('queryVar in history', getSearchParam(variableName))
     })
     return unlisten
-  }, [variableName])
+  }, [replaceVariables, variableName])
 
   const selected = parseSelected(queryVar === options.defaultValue ? '' : queryVar)
 
@@ -100,7 +104,6 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height }) => 
     const showNodes: NodeSelection = {}
     let walk = (node: TreeNodeData) => {
       if (node.showChildren) {
-        console.log('showChildren', node.type, node.id, node.name)
         if (!showNodes[node.type]) {
           showNodes[node.type] = []
         }
@@ -355,7 +358,6 @@ function transformData(
   let walk: (node: TreeNodeData) => void
 
   if (!firstRenderCompleted) {
-    console.log('first render')
     // Make sure selected nodes are visible.
     // Here we're making a comprimise: We want to show the user the nodes
     // that'are selected to be visible, but if we use "compute everything when
