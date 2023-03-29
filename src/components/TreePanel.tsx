@@ -260,7 +260,8 @@ function parseSelected(query: string): { [type: string]: string[] } {
   return items.reduce((acc, item) => {
     const match = item.match(queryRE)
     if (!match) {
-      throw new Error(`Incorrect query format: ${item}`)
+      console.error(`Incorrect query format: ${item}`)
+      return acc
     }
     const entity = match[1]
     const ids = match[2].split(',')
