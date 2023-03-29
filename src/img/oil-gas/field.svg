@@ -1,42 +1,77 @@
-<?xml version="1.0" ?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 64 64" id="Layer_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<style type="text/css">
-	.st0{fill:#BF7D2C;}
-	.st1{fill:#C9942C;}
-	.st2{fill:#6B5936;}
-	.st3{fill:#4F4228;}
-	.st4{fill:#A88C55;}
-	.st5{fill:#5C6373;}
+<?xml version="1.0"?>
+
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 64 64" id="Layer_1" version="1.1"
+	xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<style type="text/css">
+	.field-style-0{fill:#BF7D2C;}
+	.field-style-1{fill:#C9942C;}
+	.field-style-2{fill:#6B5936;}
+	.field-style-3{fill:#4F4228;}
+	.field-style-4{fill:#A88C55;}
+	.field-style-5{fill:#5C6373;}
 </style>
-<g id="Layer_31">
-<polygon class="st0" points="61,49 49,7 41,7 29,49  "/>
-<path class="st1" d="M61,50H29c-0.6,0-1-0.4-1-1c0-0.1,0-0.2,0-0.3l12-42C40.2,6.3,40.6,6,41,6h8c0.4,0,0.8,0.3,1,0.7l12,42   c0.2,0.5-0.2,1.1-0.7,1.2C61.2,50,61.1,50,61,50z M30.3,48h29.3L48.2,8h-6.5L30.3,48z"/>
-<rect class="st2" height="12" width="24" x="2" y="36"/>
-<rect class="st3" height="4" width="60" x="2" y="48"/>
-<rect class="st4" height="4" width="6" x="6" y="40"/>
-<rect class="st4" height="4" width="6" x="16" y="40"/>
-<rect class="st2" height="34" width="4" x="4" y="2"/>
-<rect class="st2" height="34" width="4" x="20" y="2"/>
-<rect class="st4" height="4" width="4" x="20" y="32"/>
-<rect class="st4" height="4" width="4" x="4" y="32"/>
-<rect class="st4" height="4" width="4" x="20" y="2"/>
-<rect class="st4" height="4" width="4" x="4" y="2"/>
-<rect class="st3" height="2" width="12" x="8" y="12"/>
-<rect class="st3" height="2" width="12" x="8" y="6"/>
-<rect class="st3" height="2" width="12" x="8" y="18"/>
-<rect class="st3" height="2" width="12" x="8" y="24"/>
-<rect class="st3" height="2" width="12" x="8" y="30"/>
-<rect class="st5" height="4" width="12" x="39" y="3"/>
-<rect class="st1" height="2" transform="matrix(0.9418 -0.3361 0.3361 0.9418 -11.2201 17.1731)" width="29.7" x="29.1" y="40"/>
-<rect class="st1" height="29.7" transform="matrix(0.3363 -0.9417 0.9417 0.3363 -8.0834 70.5302)" width="2" x="45" y="26.1"/>
-<rect class="st1" height="2" transform="matrix(0.9286 -0.3711 0.3711 0.9286 -7.6194 18.3973)" width="21.5" x="33.2" y="28"/>
-<rect class="st1" height="21.5" transform="matrix(0.3714 -0.9285 0.9285 0.3714 1.9902 60.9401)" width="2" x="45" y="18.2"/>
-<rect class="st1" height="2" transform="matrix(0.8682 -0.4961 0.4961 0.8682 -3.1331 24.2021)" width="16.1" x="35.9" y="17"/>
-<rect class="st1" height="16.1" transform="matrix(0.4961 -0.8682 0.8682 0.4961 7.5487 49.0092)" width="2" x="45" y="9.9"/>
-<rect class="st1" height="2" width="10" x="40" y="10"/>
-<rect class="st2" height="10" width="4" x="4" y="52"/>
-<rect class="st2" height="10" width="4" x="30" y="52"/>
-<rect class="st2" height="10" width="4" x="56" y="52"/>
-</g>
-</svg>
+
+<g id="Layer_31">
+
+<polygon class="field-style-0" points="61,49 49,7 41,7 29,49  "/>
+
+<path class="field-style-1" d="M61,50H29c-0.6,0-1-0.4-1-1c0-0.1,0-0.2,0-0.3l12-42C40.2,6.3,40.6,6,41,6h8c0.4,0,0.8,0.3,1,0.7l12,42   c0.2,0.5-0.2,1.1-0.7,1.2C61.2,50,61.1,50,61,50z M30.3,48h29.3L48.2,8h-6.5L30.3,48z"/>
+
+<rect class="field-style-2" height="12" width="24" x="2" y="36"/>
+
+<rect class="field-style-3" height="4" width="60" x="2" y="48"/>
+
+<rect class="field-style-4" height="4" width="6" x="6" y="40"/>
+
+<rect class="field-style-4" height="4" width="6" x="16" y="40"/>
+
+<rect class="field-style-2" height="34" width="4" x="4" y="2"/>
+
+<rect class="field-style-2" height="34" width="4" x="20" y="2"/>
+
+<rect class="field-style-4" height="4" width="4" x="20" y="32"/>
+
+<rect class="field-style-4" height="4" width="4" x="4" y="32"/>
+
+<rect class="field-style-4" height="4" width="4" x="20" y="2"/>
+
+<rect class="field-style-4" height="4" width="4" x="4" y="2"/>
+
+<rect class="field-style-3" height="2" width="12" x="8" y="12"/>
+
+<rect class="field-style-3" height="2" width="12" x="8" y="6"/>
+
+<rect class="field-style-3" height="2" width="12" x="8" y="18"/>
+
+<rect class="field-style-3" height="2" width="12" x="8" y="24"/>
+
+<rect class="field-style-3" height="2" width="12" x="8" y="30"/>
+
+<rect class="field-style-5" height="4" width="12" x="39" y="3"/>
+
+<rect class="field-style-1" height="2" transform="matrix(0.9418 -0.3361 0.3361 0.9418 -11.2201 17.1731)" width="29.7" x="29.1" y="40"/>
+
+<rect class="field-style-1" height="29.7" transform="matrix(0.3363 -0.9417 0.9417 0.3363 -8.0834 70.5302)" width="2" x="45" y="26.1"/>
+
+<rect class="field-style-1" height="2" transform="matrix(0.9286 -0.3711 0.3711 0.9286 -7.6194 18.3973)" width="21.5" x="33.2" y="28"/>
+
+<rect class="field-style-1" height="21.5" transform="matrix(0.3714 -0.9285 0.9285 0.3714 1.9902 60.9401)" width="2" x="45" y="18.2"/>
+
+<rect class="field-style-1" height="2" transform="matrix(0.8682 -0.4961 0.4961 0.8682 -3.1331 24.2021)" width="16.1" x="35.9" y="17"/>
+
+<rect class="field-style-1" height="16.1" transform="matrix(0.4961 -0.8682 0.8682 0.4961 7.5487 49.0092)" width="2" x="45" y="9.9"/>
+
+<rect class="field-style-1" height="2" width="10" x="40" y="10"/>
+
+<rect class="field-style-2" height="10" width="4" x="4" y="52"/>
+
+<rect class="field-style-2" height="10" width="4" x="30" y="52"/>
+
+<rect class="field-style-2" height="10" width="4" x="56" y="52"/>
+
+</g>
+
+</svg>

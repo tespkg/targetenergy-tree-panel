@@ -1,38 +1,69 @@
 <?xml version="1.0" ?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
 <svg width="800px" height="800px" viewBox="0 0 64 64" id="Layer_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<style type="text/css">
-	.st0{fill:#5C6373;}
-	.st1{fill:#BF7D2C;}
-	.st2{fill:#C9942C;}
-	.st3{fill:#A6A6A6;}
+
+<style type="text/css">
+	.well-style-0{fill:#5C6373;}
+	.well-style-1{fill:#BF7D2C;}
+	.well-style-2{fill:#C9942C;}
+	.well-style-3{fill:#A6A6A6;}
 </style>
-<g>
-<rect class="st0" height="16" width="2" x="5" y="21"/>
-<rect class="st0" height="5" width="2" x="5" y="39"/>
-<rect class="st0" height="5" width="2" x="31" y="14"/>
-<rect class="st0" height="5" width="2" x="31" y="21"/>
-<rect class="st0" height="4" width="13" x="10" y="58"/>
-<rect class="st0" height="4" width="13" x="41" y="58"/>
-<rect class="st1" height="6" width="54" x="8" y="8"/>
-<path class="st2" d="M8,2L2,6v7c0,4.3,2.2,8.4,5.8,10.8L8,24V2z"/>
-<circle class="st3" cx="32" cy="20" r="2"/>
-<polyline class="st0" points="55,39 55,14 59,14 59,39  "/>
-<circle class="st3" cx="6" cy="38" r="2"/>
-<circle class="st3" cx="57" cy="43" r="5"/>
-<polygon class="st2" points="42,62 37,26 27,26 22,62  "/>
-<polygon class="st1" points="39,40.4 38.5,37.1 27.4,26 27,26 26.7,28.1  "/>
-<polygon class="st1" points="37,26 36.6,26 25.5,37.1 25,40.4 37.3,28.1  "/>
-<polygon class="st1" points="24.2,46.4 41.5,62 42,62 41.6,59.4 24.5,44  "/>
-<polygon class="st1" points="39.5,44 22.4,59.4 22,62 22.5,62 39.8,46.4  "/>
-<polygon class="st1" points="24.6,43 39.4,43 39.1,41 24.9,41  "/>
-<rect class="st3" height="4" width="2" x="13" y="58"/>
-<rect class="st3" height="4" width="2" x="49" y="58"/>
-<rect class="st3" height="4" width="2" x="45" y="58"/>
-<path class="st2" d="M48.7,14H51c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H57c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H62v-1.5L57.4,8H55v3.5L51.4,8H49   v3.5L45.4,8H43v3.6L39.4,8H37v3.5L33.4,8H31v3.5L27.4,8H25v3.5L21.4,8H19v3.5L15.4,8H13v3.6L9.4,8H8v1.4l4.6,4.6H15v-3.6l3.7,3.6   H21c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H27c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H33c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H39c0,0,0-0.1,0-0.1v-3.5   l3.6,3.6H45v-3.6L48.7,14z"/>
-<rect class="st1" height="2" width="6" x="2" y="7"/>
-<rect class="st1" height="2" width="6" x="2" y="11"/>
-<path class="st1" d="M2.6,17H8v-2H2.2C2.3,15.7,2.4,16.3,2.6,17z"/>
-<rect class="st3" height="4" width="2" x="17" y="58"/>
-</g>
-</svg>
+
+<g>
+
+<rect class="well-style-0" height="16" width="2" x="5" y="21"/>
+
+<rect class="well-style-0" height="5" width="2" x="5" y="39"/>
+
+<rect class="well-style-0" height="5" width="2" x="31" y="14"/>
+
+<rect class="well-style-0" height="5" width="2" x="31" y="21"/>
+
+<rect class="well-style-0" height="4" width="13" x="10" y="58"/>
+
+<rect class="well-style-0" height="4" width="13" x="41" y="58"/>
+
+<rect class="well-style-1" height="6" width="54" x="8" y="8"/>
+
+<path class="well-style-2" d="M8,2L2,6v7c0,4.3,2.2,8.4,5.8,10.8L8,24V2z"/>
+
+<circle class="well-style-3" cx="32" cy="20" r="2"/>
+
+<polyline class="well-style-0" points="55,39 55,14 59,14 59,39  "/>
+
+<circle class="well-style-3" cx="6" cy="38" r="2"/>
+
+<circle class="well-style-3" cx="57" cy="43" r="5"/>
+
+<polygon class="well-style-2" points="42,62 37,26 27,26 22,62  "/>
+
+<polygon class="well-style-1" points="39,40.4 38.5,37.1 27.4,26 27,26 26.7,28.1  "/>
+
+<polygon class="well-style-1" points="37,26 36.6,26 25.5,37.1 25,40.4 37.3,28.1  "/>
+
+<polygon class="well-style-1" points="24.2,46.4 41.5,62 42,62 41.6,59.4 24.5,44  "/>
+
+<polygon class="well-style-1" points="39.5,44 22.4,59.4 22,62 22.5,62 39.8,46.4  "/>
+
+<polygon class="well-style-1" points="24.6,43 39.4,43 39.1,41 24.9,41  "/>
+
+<rect class="well-style-3" height="4" width="2" x="13" y="58"/>
+
+<rect class="well-style-3" height="4" width="2" x="49" y="58"/>
+
+<rect class="well-style-3" height="4" width="2" x="45" y="58"/>
+
+<path class="well-style-2" d="M48.7,14H51c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H57c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H62v-1.5L57.4,8H55v3.5L51.4,8H49   v3.5L45.4,8H43v3.6L39.4,8H37v3.5L33.4,8H31v3.5L27.4,8H25v3.5L21.4,8H19v3.5L15.4,8H13v3.6L9.4,8H8v1.4l4.6,4.6H15v-3.6l3.7,3.6   H21c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H27c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H33c0,0,0-0.1,0-0.1v-3.5l3.7,3.6H39c0,0,0-0.1,0-0.1v-3.5   l3.6,3.6H45v-3.6L48.7,14z"/>
+
+<rect class="well-style-1" height="2" width="6" x="2" y="7"/>
+
+<rect class="well-style-1" height="2" width="6" x="2" y="11"/>
+
+<path class="well-style-1" d="M2.6,17H8v-2H2.2C2.3,15.7,2.4,16.3,2.6,17z"/>
+
+<rect class="well-style-3" height="4" width="2" x="17" y="58"/>
+
+</g>
+
+</svg>
