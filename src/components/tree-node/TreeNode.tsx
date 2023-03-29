@@ -43,7 +43,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ data, onToggleNode, onSelectNode })
           className={css`
             margin-right: 6px;
           `}
-          value={data.selected}
+          value={data.selected ?? false}
           onChange={() => onSelectNode(data)}
         />
         {getTreeNodeIcon(data)}

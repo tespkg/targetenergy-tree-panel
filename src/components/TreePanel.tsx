@@ -1,23 +1,27 @@
 import { css, cx } from '@emotion/css'
 import { PanelProps } from '@grafana/data'
-import { Alert, Input, useStyles2 } from '@grafana/ui'
-import * as React from 'react'
-import { TreeOptions } from 'types'
-import { useDeepCompareMemoize } from 'use-deep-compare-effect'
-import * as Handlebars from 'handlebars'
-import { TreeNodeData } from 'commons/types/TreeNodeData'
+import { locationService } from '@grafana/runtime'
+import { Alert, useStyles2 } from '@grafana/ui'
 import { MatchSearch } from 'commons/enums/MatchSearch'
-import Toolbar from './toolbar/TreeToolbar'
-import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
-import TreeView from './tree-view/TreeView'
-import SettingsPopup from './settings-popup/SettingsPopup'
+import { TreeNodeData } from 'commons/types/TreeNodeData'
 import { setGrafanaVariable } from 'commons/utils/grafana-variable-utils'
 import GrafanaVariableAlert from 'commons/utils/GrafanaVariableAlert'
+import * as Handlebars from 'handlebars'
+import * as React from 'react'
+import { TreeOptions } from 'types'
+import HorizontalSeparator from './horizontal-separator/HorizontalSeparator'
+import { SearchBox } from './search-box/SearchBox'
+import SettingsPopup from './settings-popup/SettingsPopup'
 import './style.css'
+import Toolbar from './toolbar/TreeToolbar'
+import TreeView from './tree-view/TreeView'
 
 let renderCount = 0
 
+let firstRenderCompleted = false
+
 interface Props extends PanelProps<TreeOptions> {}
+type NodeSelection = { [key: string]: string[] }
 
 const getStyles = () => {
   return {
@@ -31,7 +35,9 @@ export const defaultFormatTemplate = `{{~#each .}}{{#if @index}} OR {{/if}}
 {{~@key}} in ({{#each .}}{{~#if @index}},{{/if}}{{~id}}{{~/each}})
 {{~/each}}`
 
-export const TreePanel: React.FC<Props> = ({ options, data, width, height, replaceVariables }) => {
+const getSearchParam = (variableName: string) => locationService.getSearch().get(`var-${variableName}`) ?? ''
+
+export const TreePanel: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = useStyles2(getStyles)
   const { field, variableName, firstFourLevelsSortingVariableName, treeFiltersVariableName, defaultExpansionLevel } =
     options
@@ -47,113 +53,92 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     formatTemplate = options.formatQuery
   }
 
-  const [showSelected, setShowSelected] = React.useState(false)
-  // Explanation why we use reference instead of use setState:
-  // The problem is we want to implement exclusive selection. When we select a
-  // node, we need to deselect all children and parents. To implement the
-  // deselection effectively, we need to be able to walk to children as well as
-  // parents.
-  // We could use immer to facilitate this but it doesn't support recursive
-  // object, and the parent node is recursive.
-  // So here our solution is to use just one data object and by changing
-  // the nested properties of this object, we record the "select" and "fold"
-  // state.
-  // However, as the reference of the data doesn't change, react won't trigger
-  // a re-render. Hence the forceRender set state call
-  let [dataRef, dataError] = React.useMemo(() => {
-    try {
-      return [transformData(rows ?? [], defaultExpansionLevel)]
-    } catch (e) {
-      const error = (
-        <Alert title={`Invalid data format in "${options.field}" column`}>
-          Accepted data format are comma separated strings. Possible format of the strings:
-          <ul>
-            <li>id,id,id,...</li>
-            <li>id:name,id:name,id:name,...</li>
-            <li>id:name:type,id:name:type,id:name:type,...</li>
-          </ul>
-        </Alert>
-      )
-      return [[] as TreeNodeData[], error]
-    }
-    // Here we memorize the data if rows doesn't change, so that we can use the
-    // data reference to record the folding & selected state
-    //
-    // Also we're implementing show selected by filter down the data. However,
-    // because we're using references, we need to recompute the original data
-    // so that no nodes are lost. Hence including `showSelected` here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, useDeepCompareMemoize([rows, field, showSelected, defaultExpansionLevel]))
+  const [queryVar, setQueryVar] = React.useState(getSearchParam(variableName))
 
-  // show selected
-  const selectedNodes = React.useRef<TreeNodeData[]>([])
-  dataRef = React.useMemo(() => {
-    // here data is always a clean state because it's recomputed from useMemo above
-    let data = dataRef
-    // restore selected state
-    const walk = (node: TreeNodeData) => {
-      if (selectedNodes.current.map((n) => n.id).includes(node.id)) {
-        node.selected = true
-        let v = node
-        while (v.parent) {
-          v.parent.showChildren = true
-          v = v.parent
-        }
-      }
-      node.children?.forEach(walk)
-    }
-    walk({ id: '', name: '', children: data })
-    if (showSelected) {
-      const walk2 = (node: TreeNodeData) => {
-        node.children = node.children?.filter((n) => n.selected || n.showChildren)
-        node.children?.forEach(walk2)
-      }
-      walk2({ id: '', name: '', children: data })
-    }
-    return data
-  }, [dataRef, showSelected])
+  React.useEffect(() => {
+    const history = locationService.getHistory()
+    const unlisten = history.listen(() => {
+      // const queryVar = replaceVariables(`$${variableName}`).trim()
+      // console.log('queryVar', queryVar) // surprise! this lags behind the url state...
+      setQueryVar(getSearchParam(variableName))
+    })
+    return unlisten
+  }, [variableName])
+
+  const selected = parseSelected(queryVar === options.defaultValue ? '' : queryVar)
 
   // filter selection with search
+  const [showSelected, setShowSelected] = React.useState(false)
   const [searchText, setSearchText] = React.useState('')
-  const debouncedSearchText = useDebounce(searchText, 250)
-  // const debouncedSearchText = React.useDeferredValue(searchText)
-  dataRef = React.useMemo(() => {
-    const walk = (node: TreeNodeData) => {
-      const w = debouncedSearchText.replace(/[.+^${}()|[\]\\]/g, '\\$&') // regexp escape
-      const re = new RegExp(w.replace(/\*/g, '.*').replace(/\?/g, '.'), 'i')
-      if (!debouncedSearchText) {
-        node.matchSearch = undefined
-      } else if (re.test(node.name)) {
-        node.matchSearch = MatchSearch.match
-        let v = node
-        while (v.parent) {
-          v = v.parent
-          v.matchSearch = MatchSearch.childMatch
+  const [showChildrenNodes, setShowChildrenNodes] = React.useState<NodeSelection>({})
+
+  let tree: TreeNodeData[] = []
+  let dataError: React.ReactNode | undefined
+  try {
+    tree = transformData(rows ?? [], defaultExpansionLevel, selected, showSelected, searchText, showChildrenNodes)
+  } catch (e) {
+    dataError = (
+      <Alert title={`Invalid data format in "${options.field}" column`}>
+        Accepted data format are comma separated strings. Possible format of the strings:
+        <ul>
+          <li>id,id,id,...</li>
+          <li>id:name,id:name,id:name,...</li>
+          <li>id:name:type,id:name:type,id:name:type,...</li>
+        </ul>
+      </Alert>
+    )
+  }
+
+  // aid initially show selected items: we want to show selected nodes and
+  // their parents here we collect all the nodes that have showChildren set to
+  // true from `transformData`
+  React.useEffect(() => {
+    firstRenderCompleted = true
+    // collect all showChildren nodes
+    const showNodes: NodeSelection = {}
+    let walk = (node: TreeNodeData) => {
+      if (node.showChildren) {
+        console.log('showChildren', node.type, node.id, node.name)
+        if (!showNodes[node.type]) {
+          showNodes[node.type] = []
         }
-      } else {
-        node.matchSearch = MatchSearch.notMatch
+        showNodes[node.type].push(node.id)
       }
       node.children?.forEach(walk)
     }
-    walk({ id: '', name: '', children: dataRef })
-    return dataRef
-  }, [dataRef, debouncedSearchText])
+    walk({ id: '', name: '', type: '', children: tree })
+    setShowChildrenNodes(showNodes)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const [_, forceRender] = React.useState({})
   console.log(renderCount++)
 
-  const handleToggleFold = (expand?: boolean) => {
-    const walk = (node: TreeNodeData) => {
-      node.showChildren = expand
-      node.children?.forEach(walk)
+  const handleToggleNode = (node: TreeNodeData) => {
+    const nodeType = node.type!!
+    const current = showChildrenNodes[nodeType]
+    if (!current || !current.includes(node.id)) {
+      const selected = current || []
+      setShowChildrenNodes({ ...showChildrenNodes, [nodeType]: [...selected, node.id] })
+    } else {
+      setShowChildrenNodes({ ...showChildrenNodes, [nodeType]: current.filter((id) => id !== node.id) })
     }
-    walk({ id: '', name: '', children: dataRef })
-    forceRender({})
   }
 
-  const handleToggleNode = (node: TreeNodeData) => {
-    node.showChildren = !node.showChildren
-    forceRender({})
+  const handleExpandAll = (expand: boolean) => {
+    if (!expand) {
+      setShowChildrenNodes({})
+    } else {
+      const showNodes: NodeSelection = {}
+      const walk = (node: TreeNodeData) => {
+        if (!showNodes[node.type]) {
+          showNodes[node.type] = []
+        }
+        showNodes[node.type].push(node.id)
+        node.children?.forEach(walk)
+      }
+      walk({ id: '', name: '', type: '', children: tree })
+      setShowChildrenNodes(showNodes)
+    }
   }
 
   const [formatTpl, formatTplError] = React.useMemo(() => {
@@ -202,8 +187,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       }
       node.children?.forEach(walk)
     }
-    walk({ id: '', name: '', children: dataRef })
-    selectedNodes.current = selected
+    walk({ id: '', name: '', type: '', children: tree })
 
     const entities: { [type: string]: object[] } = {}
 
@@ -214,15 +198,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       }
       entities[type].push({ id: node.id, name: node.name, type: node.type })
     })
-    // let query = ''
-    // for (const type in entities) {
-    //   if (query) {
-    //     query += ' OR '
-    //   }
-    //   query += `${type} in (${entities[type].join(',')})`
-    // }
     let query = formatTpl(entities)
-    const queryVar = replaceVariables(`$${variableName}`)
     if (query === '') {
       query = options.defaultValue
     }
@@ -232,8 +208,6 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       }
       setGrafanaVariable(variableName, query)
     }
-    // this should be needed, but in production build, the locationService.partial didn't trigger an re-render
-    forceRender({})
   }
 
   return (
@@ -253,31 +227,51 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
       {formatTplError}
       {dataError}
       <Toolbar>
-        <Input
-          label="Search"
-          placeholder="Search"
-          value={searchText}
-          onChange={(e) => setSearchText(e.currentTarget.value)}
-          className={css`
-            margin-bottom: 8px;
-          `}
-        />
+        <SearchBox onDebouncedChange={setSearchText} />
         <SettingsPopup
           firstFourLevelsSortingVariableName={firstFourLevelsSortingVariableName}
           treeFiltersVariableName={treeFiltersVariableName}
-          onExpandAll={() => handleToggleFold(true)}
-          onCollapseAll={() => handleToggleFold(false)}
+          onExpandAll={() => handleExpandAll(true)}
+          onCollapseAll={() => handleExpandAll(false)}
           showSelected={showSelected}
           onShowSelectedChange={() => setShowSelected((prev) => !prev)}
         />
       </Toolbar>
       <HorizontalSeparator />
-      <TreeView items={dataRef} onToggleNode={handleToggleNode} onSelectNode={handleSelectNode} />
+      <TreeView items={tree} onToggleNode={handleToggleNode} onSelectNode={handleSelectNode} />
     </div>
   )
 }
 
-function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
+// match "type in (id1,id2,id3)" where "type" is group 1 and "id1,id2,id3" is group 2
+const queryRE = new RegExp(/(\w+)\s+in\s+\(([\w|,]+)\)/)
+
+// TODO(jackieli): only works with default template...
+function parseSelected(query: string): { [type: string]: string[] } {
+  if (!query.trim()) {
+    return {}
+  }
+  const items = query.split(' OR ')
+  return items.reduce((acc, item) => {
+    const match = item.match(queryRE)
+    if (!match) {
+      throw new Error(`Incorrect query format: ${item}`)
+    }
+    const entity = match[1]
+    const ids = match[2].split(',')
+    acc[entity] = ids
+    return acc
+  }, {} as { [type: string]: string[] })
+}
+
+function transformData(
+  rows: string[],
+  defaultExpansionLevel: number,
+  selected: NodeSelection,
+  showSelected: boolean,
+  debouncedSearchText: string,
+  showNodes: NodeSelection
+): TreeNodeData[] {
   // splits each row into items
   const table = rows.map((row) =>
     row.split(',').map((column) => {
@@ -286,6 +280,7 @@ function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
       const item: TreeNodeData = {
         id: parts[0],
         name: parts[0],
+        type: parts[0],
       }
       // let's check if we have id:name,id:name,id:name,... format
       if (parts.length > 1) {
@@ -298,60 +293,97 @@ function transformData(rows: string[], expansionLevel: number): TreeNodeData[] {
       return item
     })
   )
-  const root: TreeNodeData[] = []
-  let items: TreeNodeData[] = root
+
+  const rootItems: TreeNodeData[] = []
+  let items: TreeNodeData[] = rootItems
+  const selectedNodes: TreeNodeData[] = []
+  const w = debouncedSearchText.replace(/[.+^${}()|[\]\\]/g, '\\$&') // regexp escape
+  const re = new RegExp(w.replace(/\*/g, '.*').replace(/\?/g, '.'), 'i')
+
   for (let i = 0; i < table.length; i++) {
     const row = table[i]
-    for (let levelIndex = 0; levelIndex < row.length; levelIndex++) {
-      const item = row[levelIndex]
-      if (levelIndex === 0) {
-        items = root
+    for (let j = 0; j < row.length; j++) {
+      const item = row[j]
+      if (j === 0) {
+        items = rootItems
       } else {
         // find parent level
-        const parent = items.find((i) => i.id === row[levelIndex - 1].id) ?? throwExpression('parent not found')
+        const parent = items.find((i) => i.id === row[j - 1].id) ?? throwExpression('parent not found')
         if (!parent.children) {
           parent.children = []
         }
         items = parent.children
         item.parent = parent
       }
-      if (levelIndex < expansionLevel) {
+      // if we already have an element with the same id, we skip it, avoiding duplicated items
+      if (items.findIndex((it) => it.id === item.id) >= 0) {
+        continue
+      }
+
+      items.push(item)
+
+      if (j < defaultExpansionLevel) {
         item.showChildren = true
       }
-      if (items.findIndex((i) => i.id === item.id) < 0) {
-        items.push(item)
+
+      if (selected[item.type!!] && selected[item.type!!].includes(item.id)) {
+        item.selected = true
+        selectedNodes.push(item)
+      }
+
+      if (showNodes[item.type!!] && showNodes[item.type!!].includes(item.id)) {
+        item.showChildren = true
+      }
+
+      if (!debouncedSearchText) {
+        item.matchSearch = undefined
+      } else if (re.test(item.name)) {
+        item.matchSearch = MatchSearch.match
+        let v = item
+        while (v.parent) {
+          v = v.parent
+          v.matchSearch = MatchSearch.childMatch
+        }
+      } else {
+        item.matchSearch = MatchSearch.notMatch
       }
     }
   }
-  return root
+
+  let walk: (node: TreeNodeData) => void
+
+  if (!firstRenderCompleted) {
+    console.log('first render')
+    // Make sure selected nodes are visible.
+    // Here we're making a comprimise: We want to show the user the nodes
+    // that'are selected to be visible, but if we use "compute everything when
+    // state changes", there is no easy way to collapse all or just collapse
+    // any node that has decendent selected
+    let walk = (node: TreeNodeData) => {
+      if (selectedNodes.map((n) => n.id).includes(node.id)) {
+        let v = node
+        while (v.parent) {
+          v.parent.showChildren = true
+          v = v.parent
+        }
+      }
+      node.children?.forEach(walk)
+    }
+    walk({ id: '', name: '', type: '', children: rootItems })
+  }
+
+  // if show selected, hide other items
+  if (showSelected) {
+    walk = (node: TreeNodeData) => {
+      node.children = node.children?.filter((n) => n.selected || n.showChildren)
+      node.children?.forEach(walk)
+    }
+    walk({ id: '', name: '', type: '', children: rootItems })
+  }
+
+  return rootItems
 }
 
 function throwExpression(errorMessage: string): never {
   throw new Error(errorMessage)
 }
-
-function useDebounce<T>(value: T, delay?: number): T {
-  const [debouncedValue, setDebouncedValue] = React.useState<T>(value)
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delay || 500)
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [value, delay])
-
-  return debouncedValue
-}
-
-// function usePrevious<T>(value: T) {
-//   // The ref object is a generic container whose current property is mutable ...
-//   // ... and can hold any value, similar to an instance property on a class
-//   const ref = React.useRef<T>()
-//   // Store current value in ref
-//   React.useEffect(() => {
-//     ref.current = value
-//   }, [value]) // Only re-run if value changes
-//   // Return previous value (happens before update in useEffect above)
-//   return ref.current
-// }
