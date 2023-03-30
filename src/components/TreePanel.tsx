@@ -18,8 +18,6 @@ import TreeView from './tree-view/TreeView'
 
 // let renderCount = 0
 
-let firstRenderCompleted = false
-
 interface Props extends PanelProps<TreeOptions> {}
 type NodeSelection = { [key: string]: string[] }
 
@@ -53,10 +51,18 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
     formatTemplate = options.formatQuery
   }
 
+  const mounted = React.useRef(false)
+
   // So we can't use getSearchParam(variableName) in initial state as the url state is not yet set
-  const [queryVar, setQueryVar] = React.useState(
-    () => getSearchParam(variableName) || replaceVariables(`$${variableName}`).trim()
-  )
+  const [queryVar, setQueryVar] = React.useState(() => {
+    const searchParamVar = getSearchParam(variableName).trim()
+    // console.log('searchParamVar', searchParamVar)
+    // console.log('replaceVariablesVar', replaceVariables(`$${variableName}`).trim()) // surprise! this lags behind the url state...
+    if (searchParamVar === '') {
+      return replaceVariables(`$${variableName}`).trim()
+    }
+    return searchParamVar
+  })
   // we probably want to use useSyncExternalStore as the following is considered an antipattern
   // https://react.dev/learn/you-might-not-need-an-effect#subscribing-to-an-external-store
   // only in react 18
@@ -74,6 +80,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   }, [replaceVariables, variableName])
 
   const selected = parseSelected(queryVar === options.defaultValue ? '' : queryVar)
+  // console.log('selected', selected)
 
   // filter selection with search
   const [showSelected, setShowSelected] = React.useState(false)
@@ -83,7 +90,15 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   let tree: TreeNodeData[] = []
   let dataError: React.ReactNode | undefined
   try {
-    tree = transformData(rows ?? [], defaultExpansionLevel, selected, showSelected, searchText, showChildrenNodes)
+    tree = transformData(
+      rows ?? [],
+      defaultExpansionLevel,
+      selected,
+      showSelected,
+      searchText,
+      showChildrenNodes,
+      mounted.current
+    )
   } catch (e) {
     dataError = (
       <Alert title={`Invalid data format in "${options.field}" column`}>
@@ -101,7 +116,7 @@ export const TreePanel: React.FC<Props> = ({ options, data, width, height, repla
   // their parents here we collect all the nodes that have showChildren set to
   // true from `transformData`
   React.useEffect(() => {
-    firstRenderCompleted = true
+    mounted.current = true
     // collect all showChildren nodes
     const showNodes: NodeSelection = {}
     let walk = (node: TreeNodeData) => {
@@ -278,7 +293,8 @@ function transformData(
   selected: NodeSelection,
   showSelected: boolean,
   debouncedSearchText: string,
-  showNodes: NodeSelection
+  showNodes: NodeSelection,
+  firstRenderCompleted: boolean
 ): TreeNodeData[] {
   // splits each row into items
   const table = rows.map((row) =>
